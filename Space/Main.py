@@ -17,6 +17,7 @@ img = PhotoImage(file='Logo2.png')
 Logo = Label(Ventana, image=img)
 Logo.pack()
 winsound.PlaySound('Bonfire.mp3', winsound.SND_ASYNC)
+print (pygame.display.list_modes())
 
 
 
@@ -39,33 +40,42 @@ def Inicio():
         
 def Jugar():
         Ventana.withdraw()
-        juego = pygame.display.set_mode((1200,660))
+        juego = pygame.display.set_mode((1366, 768),pygame.FULLSCREEN)
         pygame.display.set_caption ("Space Invaders")
         Nave = pygame.image.load("nave2.png")
-        posx = 300
-        posy = 250
+        posx = 400
+        posy = 350
+        reloj = pygame.time.Clock()
 
-        velocidad_nave = 13
+        velocidad_nave = 17
         negro = (0,0,0)
-        derecha = True
+        #derecha = True
 
         while True:
                 juego.fill(negro)
                 juego.blit(Nave,(posx,posy))
+                reloj.tick(20)
+
                 for event in pygame.event.get():
-                        if event.type == QUIT:
+                        if event.type == pygame.QUIT:
                                 pygame.quit()
                                 sys.exit()
-                        elif event.type == pygame.KEYDOWN:
-                                 if event.key == K_LEFT:
-                                         posx -= velocidad_nave
-                                 elif event.key == K_RIGHT:
-                                         posx += velocidad_nave
-                                 elif event.key == K_UP:
-                                         posy -= velocidad_nave
-                                 elif event.key == K_DOWN:
-                                         posy += velocidad_nave
-                        
+                        if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_LEFT:
+                                        if posx > -76:
+                                                posx -= velocidad_nave
+                                if event.key == pygame.K_RIGHT:
+                                        if posx < 1176:
+                                                posx += velocidad_nave
+                                if event.key == pygame.K_UP:
+                                        if posy > -76:
+                                                posy -= velocidad_nave
+                                if event.key == pygame.K_DOWN:
+                                        if posy < 563:
+                                                posy += velocidad_nave
+                                        
+                
+                
 
 
                 pygame.display.update()
