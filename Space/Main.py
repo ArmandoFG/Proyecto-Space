@@ -16,12 +16,13 @@ Ventana.config(bg='black')
 img = PhotoImage(file='Logo2.png')
 Logo = Label(Ventana, image=img)
 Logo.pack()
-winsound.PlaySound('Bonfire.mp3', winsound.SND_ASYNC)
 print (pygame.display.list_modes())
 
+#_________________________Variables globales
 ancho = 1366
 alto = 768
-
+lista_invasores = []
+#lista_invasores = True
 
 #______________________Funciones para cerrar el programa
 def Cerrar():
@@ -40,40 +41,28 @@ def Inicio():
 
 #___________________________________________________________-
 
-class Nave_espacial(pygame.sprite.Sprite):
-        def __init__(self):
-                pygame.sprite.Sprite.__init__(self)
-                self.Nave = pygame.image.load("nave2.png")
-                #self.Nave = pygame.transform.scale(self.Nave,(170,100))
-                self.rect = self.Nave.get_rect()
-                self.rect.centerx = ancho/2
-                self.rect.centery = 690
-                self.velocidad_nave = 17
-                self.negro = (0,0,0)
-                #self.rect.x = self.rect.centerx 
-                #self.rect.y = self.rect.centery
-                self.lista_disparo = []
-                print (self.rect)
-        def disparo (self,x,y):
-                proyectil_1 = Proyectil(x,y)
-                self.lista_disparo.append(proyectil_1)
-                
-        def Dibujar (self, superficie):
-                superficie.blit (self.Nave, self.rect)
+
 
 
 class Proyectil(pygame.sprite.Sprite):
-        def __init__(self, posx, posy):
+        def __init__(self,posx,posy, imagen, personaje):
                 pygame.sprite.Sprite.__init__(self)
-                self.imagen_proyectil = pygame.image.load ("proyectil.png")
+                self.imagen_proyectil = pygame.image.load (imagen)
                 self.rect = self.imagen_proyectil.get_rect()
                 self.v_disparo = 20
                 self.rect.top = posy
                 self.rect.left = posx
+                self.disparo_personaje = personaje
+                
                 
 
         def Trayecto(self):
-                self.rect.top = self.rect.top - self.v_disparo
+                if self.disparo_personaje == True:
+                        self.rect.top = self.rect.top - self.v_disparo
+                else:
+                        self.rect.top = self.rect.top + self.v_disparo
+                 
+                        
 
         def Dibujar (self, superficie):
                 superficie.blit (self.imagen_proyectil, self.rect)
@@ -81,37 +70,97 @@ class Proyectil(pygame.sprite.Sprite):
 class Enemigos(pygame.sprite.Sprite):
         def __init__(self, posx, posy):
                 pygame.sprite.Sprite.__init__(self)
-                self.imagen_enemigo = pygame.image.load ("enemiga.png")
-                self.rect = self.imagen_enemigo.get_rect()
-                self.imagen_enemigo = pygame.transform.scale(self.imagen_enemigo,(100,90))
-                self.lista_d = []
+
+
+
+#_____________________________Fila 1_______________________
+
+                self.imagen_enemigo1 = pygame.image.load ('enemiga.png')
+                self.imagen_enemigo1 = pygame.transform.scale(self.imagen_enemigo1,(100,90))
+                
+                
+                self.lista_invasores = [self.imagen_enemigo1]
+                self.posImagen = 0
+
+                self.imag_invasor = self.lista_invasores[self.posImagen]
+                self.rect = self.imag_invasor.get_rect()
                 self.Velocidad = 20
                 self.rect.top = posy
                 self.rect.left = posx
+                self.Rango_Disparo = 5
+                self.lista_disparo = []
+
+        def comportamiento(self, tiempo):
+                self.ataque()
+
+        def ataque(self):
+                if (randint(0,100) < self.Rango_Disparo):
+                        self.Disparo_enemigo
+        def Disparo_enemigo(self):
+                x,y = self.rect.center
+                disparo = Proyectil(x,y,"proyectil.png",False)   
+                self.lista_disparo.append(disparo)
+                
 
 
         def Dibujar (self, superficie):
-                superficie.blit (self.imagen_enemigo, self.rect)
+                self.imag_invasor = self.lista_invasores[self.posImagen]
+                superficie.blit (self.imag_invasor, self.rect)
+
+class Nave_espacial(pygame.sprite.Sprite):
+        def __init__(self):
+                pygame.sprite.Sprite.__init__(self)
+                self.Nave = pygame.image.load("nave2.png")   #nave2.png
+                #self.Nave = pygame.transform.scale(self.Nave,(170,100))
+                self.rect = self.Nave.get_rect()
+                self.rect.centerx = 683
+                self.rect.centery = 690
+                self.velocidad_nave = 10
+                self.negro = (0,0,0)
+                #self.rect.x = self.rect.centerx 
+                #self.rect.y = self.rect.centery
+                self.lista_disparo = []
+                print (self.rect)
                 
+        def Disparar (self,x,y):
+               # x = 570
+                #y = 500
+                disparo = Proyectil(x,y, "proyectil.png",True)
+                self.lista_disparo.append(disparo)
+                 
+        def Dibujar (self, superficie):
+                superficie.blit (self.Nave, self.rect)
+
         
+                
+
+# ________________________Fila 1 _____________________________
+         
+        
+
+                                                          
 
 #            Se crea la pantalla del juego y se minimiza la ventana del menu, se da una resolucion a la pantalla del juego
 #            se carga la imagen de la nave, se le da su posicionamiento y se carga la cancion del juego
 def Jugar():
         Ventana.withdraw()
-        juego = pygame.display.set_mode((1366, 768),pygame.FULLSCREEN)
+        juego = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
         pygame.display.set_caption ("Space Invaders")
         reloj = pygame.time.Clock()
         #pygame.mixer.music.load("Cancion. verificar peso.mpeg")
         #pygame.mixer.music.play(3)
-        #proyectil_juego = Proyectil(ancho, alto)
+        #proyectil_juego = Proyectil()
         Jugador = Nave_espacial()
         jugando = True
-        vely = 0
-        invasor = Enemigos(100,100)
+        #vely = 0
+        Enemig = Enemigos(100,100)
+        
         while True:
-                # Se define el color de fond, tiempo, posicion de la imagen de nave
-                juego.fill(Jugador.negro)  
+                tiempo = pygame.time.get_ticks()/1000
+                #Se define el color de fondo, tiempo, posicion de la imagen de nave
+                juego.fill(Jugador.negro)
+                                                
+                keys = pygame.key.get_pressed()
                # juego.blit(Jugador.Nave,(Jugador.posx,Jugador.posy))
                 reloj.tick(60)
                 #proyectil_juego.Trayecto()
@@ -123,36 +172,57 @@ def Jugar():
                                 sys.exit()
                         if jugando == True:
                                 if event.type == pygame.KEYDOWN:
-                                        if event.key == pygame.K_LEFT:
-                                                if Jugador.rect.left > -76:
-                                                        Jugador.rect.left -= Jugador.velocidad_nave
-                                        elif event.key == pygame.K_RIGHT:
-                                                if Jugador.rect.right < 1176:
-                                                        Jugador.rect.right += Jugador.velocidad_nave
-                                        elif event.key == pygame.K_UP:
-                                                if Jugador.rect.centery > -76:
-                                                        Jugador.rect.centery -= 10
-                                        elif event.key == pygame.K_DOWN:
-                                                #if Jugador.rect.centery < 563:
-                                                if Jugador.rect.centery < 690:
-                                                        Jugador.rect.centery += 10
-                                        elif event.key == pygame.K_SPACE:
-                                                x,y = Jugador.rect.center  
-                                                Jugador.disparo(x,y)
+                                        if event.key == pygame.K_SPACE:
+                                                x = Jugador.rect.centerx
+                                                y = Jugador.rect.centery
+                                                Jugador.Disparar(x,y)
                                                 print ("disparo")
-                                               
-                          
+                if keys[K_LEFT]:
+                        if Jugador.rect.left > -76:
+                                Jugador.rect.left -= Jugador.velocidad_nave
+                                if keys[K_UP]:
+                                        if Jugador.rect.top > -75:
+                                                Jugador.rect.top -= 10
+                                elif keys[K_DOWN]:
+                                        if Jugador.rect.top < 560:
+                                                Jugador.rect.top += 10
+                elif keys[K_RIGHT]:
+                        if Jugador.rect.right < 1440:
+                                Jugador.rect.right += Jugador.velocidad_nave
+                                if keys[K_UP]:
+                                        if Jugador.rect.top > -75:
+                                                Jugador.rect.top -= 10
+                                elif keys[K_DOWN]:
+                                        if Jugador.rect.top < 560:
+                                                Jugador.rect.top += 10
+                elif keys[K_UP]:
+                        if Jugador.rect.top > -75:
+                                Jugador.rect.top -= 10
+                elif keys[K_DOWN]:
+                        if Jugador.rect.top < 560:
+                                Jugador.rect.top += 10
                 
+                
+                              
                 Jugador.Dibujar(juego)
-                invasor.Dibujar(juego)
-                #proyectil_juego.Dibujar(juego)
+                Enemig.Dibujar(juego)
+                Enemig.comportamiento(tiempo)
+               # proyectil_juego.Dibujar(juego)
                 if len(Jugador.lista_disparo) > 0:
-                        for x in Jugador.lista_disparo:
-                                x.Dibujar(juego)
-                                x.Trayecto()
-
-                                if x.rect.top < 100:
-                                        Jugador.lista_disparo.remove(x)
+                         for x in Jugador.lista_disparo:
+                                 x.Dibujar(juego)
+                                 x.Trayecto()
+                                 if x.rect.top < 100:
+                                         Jugador.lista_disparo.remove(x)
+                if len(Enemig.lista_disparo) > 0:
+                         for x in Enemig.lista_disparo:
+                                 x.Dibujar(juego)
+                                 x.Trayecto()
+                                 if x.rect.top > 900:
+                                         Enemig.lista_disparo.remove(x)
+                                 
+                  
+                
                 pygame.display.update()
 
         
