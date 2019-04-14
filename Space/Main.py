@@ -49,7 +49,7 @@ class Proyectil(pygame.sprite.Sprite):
                 pygame.sprite.Sprite.__init__(self)
                 self.imagen_proyectil = pygame.image.load (imagen)
                 self.rect = self.imagen_proyectil.get_rect()
-                self.v_disparo = 20
+                self.v_disparo = 13
                 self.rect.top = posy
                 self.rect.left = posx
                 self.disparo_personaje = personaje
@@ -57,10 +57,10 @@ class Proyectil(pygame.sprite.Sprite):
                 
 
         def Trayecto(self):
-                if self.disparo_personaje == True:
-                        self.rect.top = self.rect.top - self.v_disparo
-                else:
+                if self.disparo_personaje == False:
                         self.rect.top = self.rect.top + self.v_disparo
+                else:
+                        self.rect.top = self.rect.top - self.v_disparo
                  
                         
 
@@ -88,18 +88,21 @@ class Enemigos(pygame.sprite.Sprite):
                 self.rect.top = posy
                 self.rect.left = posx
                 self.Rango_Disparo = 5
-                self.lista_disparo = []
+                self.lista_disparo1 = []
+                
 
-        def comportamiento(self, tiempo):
-                self.ataque()
+        #def comportamiento(self, tiempo):
+                
+                #self.ataque()
+                
 
-        def ataque(self):
-                if (randint(0,100) < self.Rango_Disparo):
-                        self.Disparo_enemigo
-        def Disparo_enemigo(self):
-                x,y = self.rect.center
-                disparo = Proyectil(x,y,"proyectil.png",False)   
-                self.lista_disparo.append(disparo)
+        #def ataque(self):
+                #if (randint(0,100) > self.Rango_Disparo):
+                 #       self.Disparo_enemigo
+        def Disparo_enemigo(self,x,y):
+                disparo = Proyectil(x,y,"proyectil.png",False)
+                self.lista_disparo1.append(disparo)
+                
                 
 
 
@@ -201,25 +204,34 @@ def Jugar():
                 elif keys[K_DOWN]:
                         if Jugador.rect.top < 560:
                                 Jugador.rect.top += 10
-                
+
+
+                        
+                if (randint(0,60) == Enemig.Rango_Disparo):
+                        x = Enemig.rect.centerx
+                        y = Enemig.rect.centery
+                        Enemig.Disparo_enemigo(x,y)
+                        print("disparo")
+
+                #if Enemig.Rango_Disparo 
                 
                               
                 Jugador.Dibujar(juego)
                 Enemig.Dibujar(juego)
-                Enemig.comportamiento(tiempo)
+                #Enemig.comportamiento(tiempo)
                # proyectil_juego.Dibujar(juego)
                 if len(Jugador.lista_disparo) > 0:
                          for x in Jugador.lista_disparo:
                                  x.Dibujar(juego)
                                  x.Trayecto()
-                                 if x.rect.top < 100:
+                                 if x.rect.top < -20:
                                          Jugador.lista_disparo.remove(x)
-                if len(Enemig.lista_disparo) > 0:
-                         for x in Enemig.lista_disparo:
+                if len(Enemig.lista_disparo1) > 0:
+                         for x in Enemig.lista_disparo1:
                                  x.Dibujar(juego)
                                  x.Trayecto()
                                  if x.rect.top > 900:
-                                         Enemig.lista_disparo.remove(x)
+                                         Enemig.lista_disparo1.remove(x)
                                  
                   
                 
