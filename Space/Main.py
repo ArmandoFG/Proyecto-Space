@@ -164,9 +164,11 @@ class Nave_espacial(pygame.sprite.Sprite):
                 superficie.blit (self.Nave, self.rect)
 
 def Cargar_Enemigos():
-    enemigo = Enemigos (100,100,100,"enemiga.png",)
-    lista_invasores.append(enemigo)
-        
+    posx = 100
+    for x in range(1,7):
+        enemigo = Enemigos (posx,100,100,"enemiga.png",)
+        lista_invasores.append(enemigo)
+        posx = posx + 200
                 
 
 # ________________________Fila 1 _____________________________
