@@ -20,6 +20,7 @@ print (pygame.display.list_modes())
 ancho = 1366
 alto = 768
 lista_invasores = []
+lista_explosion = []
 #lista_invasores = True
 
 #______________________Funciones para cerrar el programa
@@ -38,8 +39,7 @@ def Inicio():
         Ventana.deiconify()
 
 #___________________________________________________________
-
-
+        
 
 class Proyectil(pygame.sprite.Sprite):
         def __init__(self,posx,posy, imagen, personaje):
@@ -75,7 +75,6 @@ class Enemigos(pygame.sprite.Sprite):
                 self.imagen_enemigo1 = pygame.image.load (imagen)
                 self.imagen_enemigo1 = pygame.transform.scale(self.imagen_enemigo1,(100,90))
                 
-                
                 self.lista_invasores = [self.imagen_enemigo1]
                 self.posImagen = 0
 
@@ -85,7 +84,10 @@ class Enemigos(pygame.sprite.Sprite):
                 self.rect.top = posy
                 self.rect.left = posx
                 self.Rango_Disparo = 5
+                self.Rango_Movimiento = 5
                 self.lista_disparo1 = []
+                self.lista_explosion = []
+                
 
                 self.derecha = True
                 self.contador = 0
@@ -127,9 +129,12 @@ class Enemigos(pygame.sprite.Sprite):
                         x = self.rect.centerx
                         y = self.rect.centery
                         self.Disparo_enemigo(x,y)
+
+        
+                
                 
         def Disparo_enemigo(self,x,y):
-                disparo = Proyectil(x,y,"proyectil.png",False)
+                disparo = Proyectil(x,y,"proyectil2.png",False)
                 self.lista_disparo1.append(disparo)
                 
                 
@@ -155,49 +160,58 @@ class Nave_espacial(pygame.sprite.Sprite):
                 print (self.rect)
                 
         def Disparar (self,x,y):
-               # x = 570
+                #x = 570
                 #y = 500
                 disparo = Proyectil(x,y, "proyectil.png",True)
                 self.lista_disparo.append(disparo)
                  
         def Dibujar (self, superficie):
                 superficie.blit (self.Nave, self.rect)
-
+        
 def Cargar_Enemigos():
     posx = 100
     for x in range(1,7):
         enemigo = Enemigos (posx,100,100,"enemiga.png")
         lista_invasores.append(enemigo)
         posx = posx + 200
-
+        
     posx = 100
     for x in range(1,7):
         enemigo = Enemigos (posx,0,100,"enemiga.png")
         lista_invasores.append(enemigo)
         posx = posx + 200
-
+        
     posx = 100
     for x in range(1,7):
-        enemigo = Enemigos (posx,-100,100,"enemiga.png")
+        enemigo = Enemigos (posx,200,100,"enemiga.png")
         lista_invasores.append(enemigo)
         posx = posx + 200
-
+        
     posx = 100
     for x in range(1,7):
-        enemigo = Enemigos (posx,-200,100,"enemiga.png")
+        enemigo = Enemigos (posx,400,100,"enemiga.png")
         lista_invasores.append(enemigo)
         posx = posx + 200
-
+        
     posx = 100
     for x in range(1,7):
-        enemigo = Enemigos (posx,-300,100,"enemiga.png")
+        enemigo = Enemigos (posx,300,100,"enemiga.png")
         lista_invasores.append(enemigo)
         posx = posx + 200
 # ________________________Fila 1 _____________________________
          
-        
+def Nombre_Jugador():
+        Canvas_Jugador = Canvas (Ventana, bg = "black", width = 250, height = 300)
+        Canvas_Jugador.pack()
+        Nombre = Entry (Canvas_Jugador, bd = 5, justify = LEFT)
+        Nombre.place(x=120,y=20)
+        Label_Jugador = Label (Canvas_Jugador,text = "Jugador:",fg = "white",bg = "black")
+        Label_Jugador.place (x=20,y=20)
+        B_Jugar2 = tkinter.Button(Canvas_Jugador, text="Jugar",fg="white",width=9,height=2,bg="GREEN",command=Jugar, cursor='hand2')
+        B_Jugar2.place(x=120,y=60)                                            
 
-                                                          
+
+
 
 #            Se crea la pantalla del juego y se minimiza la ventana del menu, se da una resolucion a la pantalla del juego
 #            se carga la imagen de la nave, se le da su posicionamiento y se carga la cancion del juego
@@ -214,6 +228,7 @@ def Jugar():
         #vely = 0
         #Enemig = Enemigos(100,100)
         Enemig = Cargar_Enemigos()
+     
         
         while True:
                 tiempo = pygame.time.get_ticks()/1000
@@ -278,12 +293,19 @@ def Jugar():
                         x.Trayecto()
                         if x.rect.top < -20:
                             Jugador.lista_disparo.remove(x)
+                        else:
+                            for enemigo in lista_invasores:
+                                if x.rect.colliderect(enemigo.rect):
+                                    lista_invasores.remove(enemigo)
+                                    Jugador.lista_disparo.remove(x)
+                                    
+                     
+                    
              
                 if len(lista_invasores) > 0:
                     for enemigo in lista_invasores:
                         enemigo.comportamiento(tiempo)
                         enemigo.Dibujar(juego)
-
                         if len(enemigo.lista_disparo1) > 0:
                                  for x in enemigo.lista_disparo1:
                                          x.Dibujar(juego)
@@ -303,7 +325,7 @@ Ventana.protocol("WM_DELETE_WINDOW",Cerrar)
 ######################### se define los botones de salida y jugar de la pantalla de inicio###############################
 B_Salir = tkinter.Button(Ventana, text="Salir",fg="white",width=10,height=3,bg="GREEN",command=Salir, cursor='pirate')
 B_Salir.place(x=642,y=600)
-B_Jugar = tkinter.Button(Ventana, text="Jugar",fg="white",width=10,height=3,bg="GREEN",command=Jugar, cursor='hand2')
+B_Jugar = tkinter.Button(Ventana, text="Jugar",fg="white",width=10,height=3,bg="GREEN",command=Nombre_Jugador, cursor='hand2')
 B_Jugar.place(x=642,y=540)
 
 
