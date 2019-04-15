@@ -65,14 +65,14 @@ class Proyectil(pygame.sprite.Sprite):
                 superficie.blit (self.imagen_proyectil, self.rect)
                 
 class Enemigos(pygame.sprite.Sprite):
-        def __init__(self, posx, posy):
+        def __init__(self, posx, posy, distancia, imagen):
                 pygame.sprite.Sprite.__init__(self)
 
 
 
 #_____________________________Fila 1_______________________
 
-                self.imagen_enemigo1 = pygame.image.load ('enemiga.png')
+                self.imagen_enemigo1 = pygame.image.load (imagen)
                 self.imagen_enemigo1 = pygame.transform.scale(self.imagen_enemigo1,(100,90))
                 
                 
@@ -81,21 +81,53 @@ class Enemigos(pygame.sprite.Sprite):
 
                 self.imag_invasor = self.lista_invasores[self.posImagen]
                 self.rect = self.imag_invasor.get_rect()
-                self.Velocidad = 20
+                self.Velocidad = 5
                 self.rect.top = posy
                 self.rect.left = posx
                 self.Rango_Disparo = 5
                 self.lista_disparo1 = []
-                
 
-        #def comportamiento(self, tiempo):
-                
-                #self.ataque()
-                
+                self.derecha = True
+                self.contador = 0
+                self.Maximo_Descenso = self.rect.top + 15
 
-        #def ataque(self):
-                #if (randint(0,100) > self.Rango_Disparo):
-                 #       self.Disparo_enemigo
+                self.limite_derecha = posx + distancia
+                self.limite_izquierda= posx - distancia
+
+        def comportamiento(self, tiempo):
+                self.Ataque()
+                self.Movimientos()
+
+        def Movimientos(self):
+            if self.contador < 3:
+                self.Mov_Lateral()
+            else:
+                self.Mov_Descenso()
+
+        def Mov_Lateral(self):
+            if self.derecha == True:
+                self.rect.left = self.rect.left + self.Velocidad
+                if self.rect.left > self.limite_derecha:
+                    self.derecha = False
+                    self.contador += 1
+            else:
+                self.rect.left = self.rect.left - self.Velocidad
+                if self.rect.left < self.limite_izquierda:
+                    self.derecha = True
+        def Mov_Descenso(self):
+            if  self.Maximo_Descenso == self.rect.top:
+                self.contador = 0
+                self.Maximo_Descenso = self.rect.top + 15
+                
+                
+            else:
+                self.rect.top += 1
+        def Ataque(self):
+            if (randint(0,60) == self.Rango_Disparo):
+                        x = self.rect.centerx
+                        y = self.rect.centery
+                        self.Disparo_enemigo(x,y)
+                
         def Disparo_enemigo(self,x,y):
                 disparo = Proyectil(x,y,"proyectil.png",False)
                 self.lista_disparo1.append(disparo)
@@ -131,6 +163,9 @@ class Nave_espacial(pygame.sprite.Sprite):
         def Dibujar (self, superficie):
                 superficie.blit (self.Nave, self.rect)
 
+def Cargar_Enemigos():
+    enemigo = Enemigos (100,100,100,"enemiga.png",)
+    lista_invasores.append(enemigo)
         
                 
 
@@ -153,7 +188,8 @@ def Jugar():
         Jugador = Nave_espacial()
         jugando = True
         #vely = 0
-        Enemig = Enemigos(100,100)
+        #Enemig = Enemigos(100,100)
+        Enemig = Cargar_Enemigos()
         
         while True:
                 tiempo = pygame.time.get_ticks()/1000
@@ -204,31 +240,32 @@ def Jugar():
 
 
                         
-                if (randint(0,60) == Enemig.Rango_Disparo):
-                        x = Enemig.rect.centerx
-                        y = Enemig.rect.centery
-                        Enemig.Disparo_enemigo(x,y)
-                        print("disparo")
 
                 #if Enemig.Rango_Disparo 
                 
                               
                 Jugador.Dibujar(juego)
-                Enemig.Dibujar(juego)
+                #Enemig.Dibujar(juego)
                 #Enemig.comportamiento(tiempo)
-               # proyectil_juego.Dibujar(juego)
+
                 if len(Jugador.lista_disparo) > 0:
-                         for x in Jugador.lista_disparo:
-                                 x.Dibujar(juego)
-                                 x.Trayecto()
-                                 if x.rect.top < -20:
-                                         Jugador.lista_disparo.remove(x)
-                if len(Enemig.lista_disparo1) > 0:
-                         for x in Enemig.lista_disparo1:
-                                 x.Dibujar(juego)
-                                 x.Trayecto()
-                                 if x.rect.top > 900:
-                                         Enemig.lista_disparo1.remove(x)
+                    for x in Jugador.lista_disparo:
+                        x.Dibujar(juego)
+                        x.Trayecto()
+                        if x.rect.top < -20:
+                            Jugador.lista_disparo.remove(x)
+             
+                if len(lista_invasores) > 0:
+                    for enemigo in lista_invasores:
+                        enemigo.comportamiento(tiempo)
+                        enemigo.Dibujar(juego)
+
+                        if len(enemigo.lista_disparo1) > 0:
+                                 for x in enemigo.lista_disparo1:
+                                         x.Dibujar(juego)
+                                         x.Trayecto()
+                                         if x.rect.top > 900:
+                                                 enemigo.lista_disparo1.remove(x)
                                  
                   
                 
