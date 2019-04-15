@@ -123,7 +123,7 @@ class Enemigos(pygame.sprite.Sprite):
             else:
                 self.rect.top += 1
         def Ataque(self):
-            if (randint(0,60) == self.Rango_Disparo):
+            if (randint(0,550) == self.Rango_Disparo):
                         x = self.rect.centerx
                         y = self.rect.centery
                         self.Disparo_enemigo(x,y)
@@ -166,11 +166,33 @@ class Nave_espacial(pygame.sprite.Sprite):
 def Cargar_Enemigos():
     posx = 100
     for x in range(1,7):
-        enemigo = Enemigos (posx,100,100,"enemiga.png",)
+        enemigo = Enemigos (posx,100,100,"enemiga.png")
         lista_invasores.append(enemigo)
         posx = posx + 200
-                
 
+    posx = 100
+    for x in range(1,7):
+        enemigo = Enemigos (posx,0,100,"enemiga.png")
+        lista_invasores.append(enemigo)
+        posx = posx + 200
+
+    posx = 100
+    for x in range(1,7):
+        enemigo = Enemigos (posx,-100,100,"enemiga.png")
+        lista_invasores.append(enemigo)
+        posx = posx + 200
+
+    posx = 100
+    for x in range(1,7):
+        enemigo = Enemigos (posx,-200,100,"enemiga.png")
+        lista_invasores.append(enemigo)
+        posx = posx + 200
+
+    posx = 100
+    for x in range(1,7):
+        enemigo = Enemigos (posx,-300,100,"enemiga.png")
+        lista_invasores.append(enemigo)
+        posx = posx + 200
 # ________________________Fila 1 _____________________________
          
         
