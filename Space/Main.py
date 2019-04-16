@@ -5,6 +5,7 @@ import pygame,sys
 from pygame import *
 from random import randint
 import winsound
+import csv
 #______________________Ventana Principal_____________________
 Ventana = tkinter.Tk()
 pygame.init()
@@ -21,6 +22,7 @@ ancho = 1366
 alto = 768
 lista_invasores = []
 lista_explosion = []
+
 #lista_invasores = True
 
 #______________________Funciones para cerrar el programa
@@ -32,11 +34,6 @@ def Salir():
         if messagebox.askyesno("Salir", "¿Desea salir del juego?"):
             Ventana.destroy()
 
-def Inicio():
-        global pausa
-        pausa=True
-        C_juego.destroy()
-        Ventana.deiconify()
 
 #___________________________________________________________
         
@@ -45,6 +42,7 @@ class Proyectil(pygame.sprite.Sprite):
         def __init__(self,posx,posy, imagen, personaje):
                 pygame.sprite.Sprite.__init__(self)
                 self.imagen_proyectil = pygame.image.load (imagen)
+                self.imagen_proyectil = pygame.transform.scale(self.imagen_proyectil,(25,35))
                 self.rect = self.imagen_proyectil.get_rect()
                 self.v_disparo = 13
                 self.rect.top = posy
@@ -73,7 +71,7 @@ class Enemigos(pygame.sprite.Sprite):
 #_____________________________Fila 1_______________________
 
                 self.imagen_enemigo1 = pygame.image.load (imagen)
-                self.imagen_enemigo1 = pygame.transform.scale(self.imagen_enemigo1,(100,90))
+                self.imagen_enemigo1 = pygame.transform.scale(self.imagen_enemigo1,(80,80))
                 
                 self.lista_invasores = [self.imagen_enemigo1]
                 self.posImagen = 0
@@ -125,7 +123,7 @@ class Enemigos(pygame.sprite.Sprite):
             else:
                 self.rect.top += 1
         def Ataque(self):
-            if (randint(0,550) == self.Rango_Disparo):
+            if (randint(0,1000) == self.Rango_Disparo):
                         x = self.rect.centerx
                         y = self.rect.centery
                         self.Disparo_enemigo(x,y)
@@ -148,7 +146,7 @@ class Nave_espacial(pygame.sprite.Sprite):
         def __init__(self):
                 pygame.sprite.Sprite.__init__(self)
                 self.Nave = pygame.image.load("nave2.png")   #nave2.png
-                #self.Nave = pygame.transform.scale(self.Nave,(170,100))
+                self.Nave = pygame.transform.scale(self.Nave,(90,90))
                 self.rect = self.Nave.get_rect()
                 self.rect.centerx = 683
                 self.rect.centery = 690
@@ -158,7 +156,7 @@ class Nave_espacial(pygame.sprite.Sprite):
                 #self.rect.y = self.rect.centery
                 self.lista_disparo = []
                 print (self.rect)
-                
+        
         def Disparar (self,x,y):
                 #x = 570
                 #y = 500
@@ -169,46 +167,54 @@ class Nave_espacial(pygame.sprite.Sprite):
                 superficie.blit (self.Nave, self.rect)
         
 def Cargar_Enemigos():
-    posx = 100
+    posx = 265
     for x in range(1,7):
-        enemigo = Enemigos (posx,100,100,"enemiga.png")
+        enemigo = Enemigos (posx,100,265,"enemiga.png")
         lista_invasores.append(enemigo)
-        posx = posx + 200
+        posx = posx + 150
         
-    posx = 100
+    posx = 265
     for x in range(1,7):
-        enemigo = Enemigos (posx,0,100,"enemiga.png")
+        enemigo = Enemigos (posx,0,265,"enemiga.png")
         lista_invasores.append(enemigo)
-        posx = posx + 200
+        posx = posx + 150
         
-    posx = 100
+    posx = 265
     for x in range(1,7):
-        enemigo = Enemigos (posx,200,100,"enemiga.png")
+        enemigo = Enemigos (posx,200,265,"enemiga.png")
         lista_invasores.append(enemigo)
-        posx = posx + 200
+        posx = posx + 150
         
-    posx = 100
+    posx = 265
     for x in range(1,7):
-        enemigo = Enemigos (posx,400,100,"enemiga.png")
+        enemigo = Enemigos (posx,400,265,"enemiga.png")
         lista_invasores.append(enemigo)
-        posx = posx + 200
+        posx = posx + 150
         
-    posx = 100
+    posx = 265
     for x in range(1,7):
-        enemigo = Enemigos (posx,300,100,"enemiga.png")
+        enemigo = Enemigos (posx,300,265,"enemiga.png")
         lista_invasores.append(enemigo)
-        posx = posx + 200
-# ________________________Fila 1 _____________________________
-         
-def Nombre_Jugador():
-        Canvas_Jugador = Canvas (Ventana, bg = "black", width = 250, height = 300)
-        Canvas_Jugador.pack()
-        Nombre = Entry (Canvas_Jugador, bd = 5, justify = LEFT)
-        Nombre.place(x=120,y=20)
-        Label_Jugador = Label (Canvas_Jugador,text = "Jugador:",fg = "white",bg = "black")
-        Label_Jugador.place (x=20,y=20)
-        B_Jugar2 = tkinter.Button(Canvas_Jugador, text="Jugar",fg="white",width=9,height=2,bg="GREEN",command=Jugar, cursor='hand2')
-        B_Jugar2.place(x=120,y=60)                                            
+        posx = posx + 150
+# ________________________Fila 1 _____________________________                          lambda: print(Nombre.get())
+
+
+class Nombre_Jugador():
+        def __init__(self):
+        
+                
+                self.Canvas_Jugador = Canvas (Ventana, bg = "black", width = 250, height = 300)
+                self.Canvas_Jugador.pack()
+                self.Nombre = Entry(self.Canvas_Jugador, bd = 5, justify = LEFT)
+                self.Nombre.place(x=120,y=20)
+                self.Label_Jugador = Label (self.Canvas_Jugador,text = "Jugador:",fg = "white",bg = "black")
+                self.Label_Jugador.place (x=20,y=20)
+                self.Nombre_J = self.Nombre.get()
+                self.B_Guardar = tkinter.Button(self.Canvas_Jugador, text="Guardar",fg="white",width=9,height=2,bg="GREEN",command= self.Nombre_J, cursor='hand2')
+                self.B_Guardar.place(x=120,y=50)
+                self.B_Jugar2 = tkinter.Button(self.Canvas_Jugador, text="Jugar",fg="white",width=9,height=2,bg="GREEN",command=Jugar, cursor='hand2')
+                self.B_Jugar2.place(x=120,y=100)
+
 
 
 
@@ -298,7 +304,7 @@ def Jugar():
                                 if x.rect.colliderect(enemigo.rect):
                                     lista_invasores.remove(enemigo)
                                     Jugador.lista_disparo.remove(x)
-                                    
+        
                      
                     
              
@@ -306,14 +312,24 @@ def Jugar():
                     for enemigo in lista_invasores:
                         enemigo.comportamiento(tiempo)
                         enemigo.Dibujar(juego)
+
+                        if enemigo.rect.colliderect(Jugador.rect):
+                                pass
+                        
                         if len(enemigo.lista_disparo1) > 0:
                                  for x in enemigo.lista_disparo1:
                                          x.Dibujar(juego)
                                          x.Trayecto()
+                                         if x.rect.colliderect(Jugador.rect):
+                                                 Ventana.deiconify()
+                                                 pygame.quit()
+                                                 sys.exit()
+                                                 
                                          if x.rect.top > 900:
                                                  enemigo.lista_disparo1.remove(x)
                                  
-                  
+                
+                        
                 
                 pygame.display.update()
 
