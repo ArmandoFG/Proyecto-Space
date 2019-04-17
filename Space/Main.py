@@ -196,8 +196,9 @@ def Cargar_Enemigos():
         enemigo = Enemigos (posx,300,265,"enemiga.png")
         lista_invasores.append(enemigo)
         posx = posx + 150
-# ________________________Fila 1 _____________________________                          lambda: print(Nombre.get())
 
+
+        
 
 class Nombre_Jugador():
         def __init__(self):
@@ -205,23 +206,54 @@ class Nombre_Jugador():
                 
                 self.Canvas_Jugador = Canvas (Ventana, bg = "black", width = 250, height = 300)
                 self.Canvas_Jugador.pack()
-                self.Nombre = Entry(self.Canvas_Jugador, bd = 5, justify = LEFT)
+
+                self.dato=tkinter.StringVar()
+                self.Nombre = Entry(self.Canvas_Jugador, bd = 5, justify = LEFT, textvariable=self.dato)
                 self.Nombre.place(x=120,y=20)
+                
                 self.Label_Jugador = Label (self.Canvas_Jugador,text = "Jugador:",fg = "white",bg = "black")
                 self.Label_Jugador.place (x=20,y=20)
-                self.Nombre_J = self.Nombre.get()
-                self.B_Guardar = tkinter.Button(self.Canvas_Jugador, text="Guardar",fg="white",width=9,height=2,bg="GREEN",command= self.Nombre_J, cursor='hand2')
+                
+                self.B_Guardar = tkinter.Button(self.Canvas_Jugador, text="Guardar",fg="white",width=9,height=2,bg="GREEN",command=self.Lista_J, cursor='hand2')
                 self.B_Guardar.place(x=120,y=50)
-                self.B_Jugar2 = tkinter.Button(self.Canvas_Jugador, text="Jugar",fg="white",width=9,height=2,bg="GREEN",command=Jugar, cursor='hand2')
+                self.B_Jugar2 = tkinter.Button(self.Canvas_Jugador, text="Jugar",fg="white",width=9,height=2,bg="GREEN",command=Iniciar_nivel, cursor='hand2')
                 self.B_Jugar2.place(x=120,y=100)
 
+        def Lista_J(self):
+                valor=[self.dato.get()]
+                list_Jugador = open ('Jugadores.csv','w')
+                with list_Jugador:
+                        writer = csv.writer(list_Jugador)
+                        writer.writerow(valor)
+                
+        
 
+def Iniciar_nivel():
+                nivel = 1
+                nivel_txt =str(nivel)
+                Level = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
+                pygame.display.set_caption ("Space Invaders")
+                Texto_nivel = pygame.font.Font (None, 80)
+                Texto = Texto_nivel.render("Nivel: " + nivel_txt, 0,(51,159,17))
 
+                Texto_indicacion = pygame.font.Font (None, 60)
+                Texto_in = Texto_indicacion.render("Presione [s] para empezar... ", 0,(51,159,17))
+
+                while True:
+                        for event in pygame.event.get():
+                                if event.type == pygame.KEYDOWN:
+                                        if event.key == pygame.K_s:
+                                                Jugar()
+
+                        Level.blit(Texto,(100,200))
+                        Level.blit(Texto_in,(200,550))
+                        pygame.display.update()
 
 
 #            Se crea la pantalla del juego y se minimiza la ventana del menu, se da una resolucion a la pantalla del juego
 #            se carga la imagen de la nave, se le da su posicionamiento y se carga la cancion del juego
 def Jugar():
+        Nombre = Nombre_Jugador()
         Ventana.withdraw()
         juego = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
         pygame.display.set_caption ("Space Invaders")
@@ -234,6 +266,8 @@ def Jugar():
         #vely = 0
         #Enemig = Enemigos(100,100)
         Enemig = Cargar_Enemigos()
+
+        
      
         
         while True:
@@ -258,6 +292,7 @@ def Jugar():
                                                 y = Jugador.rect.centery
                                                 Jugador.Disparar(x,y)
                                                 print ("disparo")
+                                        
                 if keys[K_LEFT]:
                         if Jugador.rect.left > -76:
                                 Jugador.rect.left -= Jugador.velocidad_nave
@@ -322,6 +357,7 @@ def Jugar():
                                          x.Trayecto()
                                          if x.rect.colliderect(Jugador.rect):
                                                  Ventana.deiconify()
+                                                 pygame.display.quit()
                                                  pygame.quit()
                                                  sys.exit()
                                                  
