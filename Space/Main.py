@@ -28,7 +28,7 @@ nivel = 1
 marcador = 0
 Velocidad = 5
 Disparo_enemigo = 1600
-Imagen_Disparo_Jugador = "proyectil.png"
+Imagen_Disparo_Jugador = "proyectil_v2.png"
 
 #______________________Funciones para cerrar el programa
 def Cerrar():
@@ -47,7 +47,7 @@ class Proyectil(pygame.sprite.Sprite):
         def __init__(self,posx,posy, imagen, personaje):
                 pygame.sprite.Sprite.__init__(self)
                 self.imagen_proyectil = pygame.image.load (imagen)
-                self.imagen_proyectil = pygame.transform.scale(self.imagen_proyectil,(25,35))
+                self.imagen_proyectil = pygame.transform.scale(self.imagen_proyectil,(50,45))
                 self.rect = self.imagen_proyectil.get_rect()
                 self.v_disparo = 13
                 self.rect.top = posy
@@ -104,7 +104,7 @@ class Enemigos(pygame.sprite.Sprite):
                 self.Movimientos()
 
         def Movimientos(self):
-            if self.contador < 3:
+            if self.contador < 2:
                 self.Mov_Lateral()
             else:
                 self.Mov_Descenso()
@@ -138,7 +138,7 @@ class Enemigos(pygame.sprite.Sprite):
                 
                 
         def Disparo_enemigo(self,x,y):
-                disparo = Proyectil(x,y,"proyectil2.png",False)
+                disparo = Proyectil(x,y,"proyectil_v3.png",False)
                 self.lista_disparo1.append(disparo)
                 
                 
@@ -177,32 +177,32 @@ def Cargar_Enemigos():
         
     posx = 265
     for x in range(1,7):
-        enemigo = Enemigos (posx,100,265,"enemiga.png")
+        enemigo = Enemigos (posx,100,265,"enemiga2.png")
         lista_invasores.append(enemigo)
         posx = posx + 150
 
 
     posx = 265
     for x in range(1,7):
-        enemigo = Enemigos (posx,0,265,"enemiga.png")
+        enemigo = Enemigos (posx,0,265,"enemiga2.png")
         lista_invasores.append(enemigo)
         posx = posx + 150
         
     posx = 265
     for x in range(1,7):
-        enemigo = Enemigos (posx,200,265,"enemiga.png")
+        enemigo = Enemigos (posx,200,265,"enemiga2.png")
         lista_invasores.append(enemigo)
         posx = posx + 150
         
     posx = 265
     for x in range(1,7):
-        enemigo = Enemigos (posx,400,265,"enemiga.png")
+        enemigo = Enemigos (posx,400,265,"enemiga2.png")
         lista_invasores.append(enemigo)
         posx = posx + 150
         
     posx = 265
     for x in range(1,7):
-        enemigo = Enemigos (posx,300,265,"enemiga.png")
+        enemigo = Enemigos (posx,300,265,"enemiga2.png")
         lista_invasores.append(enemigo)
         posx = posx + 150    
         
@@ -336,8 +336,8 @@ def Jugar():
         juego = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
         pygame.display.set_caption ("Space Invaders")
         reloj = pygame.time.Clock()
-        #pygame.mixer.music.load("Cancion. verificar peso.mpeg")
-        #pygame.mixer.music.play(3)
+        pygame.mixer.music.load("Cancion. verificar peso.mpeg")
+        pygame.mixer.music.play(3)
         Jugador = Nave_espacial()
         jugando = True
         #Enemig = Enemigos(100,100)
