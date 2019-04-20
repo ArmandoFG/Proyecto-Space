@@ -23,10 +23,12 @@ alto = 768
 lista_invasores = []
 
 
-global marcador, nivel, Velocidad
+global marcador, nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador
 nivel = 1
 marcador = 0
 Velocidad = 5
+Disparo_enemigo = 1600
+Imagen_Disparo_Jugador = "proyectil.png"
 
 #______________________Funciones para cerrar el programa
 def Cerrar():
@@ -126,7 +128,8 @@ class Enemigos(pygame.sprite.Sprite):
             else:
                 self.rect.top += 1
         def Ataque(self):
-            if (randint(0,100000) == self.Rango_Disparo):
+                global Disparo_enemigo
+                if (randint(0,Disparo_enemigo) == self.Rango_Disparo):
                         x = self.rect.centerx
                         y = self.rect.centery
                         self.Disparo_enemigo(x,y)
@@ -163,7 +166,8 @@ class Nave_espacial(pygame.sprite.Sprite):
         def Disparar (self,x,y):
                 #x = 570
                 #y = 500
-                disparo = Proyectil(x,y, "proyectil.png",True)
+                global Imagen_Disparo_Jugador
+                disparo = Proyectil(x,y, Imagen_Disparo_Jugador,True)
                 self.lista_disparo.append(disparo)
                  
         def Dibujar (self, superficie):
@@ -176,6 +180,7 @@ def Cargar_Enemigos():
         enemigo = Enemigos (posx,100,265,"enemiga.png")
         lista_invasores.append(enemigo)
         posx = posx + 150
+
 
     posx = 265
     for x in range(1,7):
@@ -200,7 +205,7 @@ def Cargar_Enemigos():
         enemigo = Enemigos (posx,300,265,"enemiga.png")
         lista_invasores.append(enemigo)
         posx = posx + 150    
-    
+        
 
 
         
@@ -230,6 +235,38 @@ class Nombre_Jugador():
                 with list_Jugador:
                         writer = csv.writer(list_Jugador)
                         writer.writerow(valor)
+
+def Win():
+        WIN = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
+        pygame.display.set_caption ("Space Invaders")
+        Texto_WIN= pygame.font.Font (None, 80)
+        Texto = Texto_WIN.render("Ganó el juego" , 0,(51,159,17))
+
+        Texto_Puntaje = pygame.font.Font (None, 80)
+        Texto_P = Texto_Puntaje.render("Puntaje: " + str(marcador), 0,(51,159,17))
+
+        Texto_indicacion = pygame.font.Font (None, 60)
+        Texto_in = Texto_indicacion.render("Presione [s] para ir a la ventana principal ", 0,(51,159,17))
+        
+
+        while True:
+                for event in pygame.event.get():
+                        if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_s:
+                                        Ventana.deiconify()
+                                        pygame.display.quit()
+                                        pygame.quit()
+                                        sys.exit()
+                                                
+                
+                        
+                                        
+                                        
+                        
+                WIN.blit(Texto,(100,200))
+                WIN.blit(Texto_P,(100,300))
+                WIN.blit(Texto_in,(200,550))
+                pygame.display.update()
 
 def Game_Over():
         
@@ -293,6 +330,7 @@ def Iniciar_nivel():
 #            Se crea la pantalla del juego y se minimiza la ventana del menu, se da una resolucion a la pantalla del juego
 #            se carga la imagen de la nave, se le da su posicionamiento y se carga la cancion del juego
 def Jugar():
+        Cont = 1
         Nombre = Nombre_Jugador()
         Ventana.withdraw()
         juego = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
@@ -305,13 +343,13 @@ def Jugar():
         #Enemig = Enemigos(100,100)
         Enemig = Cargar_Enemigos()
         
-     
+        global nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador
         
         while True:
                 tiempo = pygame.time.get_ticks()/1000
                 #Se define el color de fondo, tiempo, posicion de la imagen de nave
                 juego.fill(Jugador.negro)
-                               
+                
                 keys = pygame.key.get_pressed()
                # juego.blit(Jugador.Nave,(Jugador.posx,Jugador.posy))
                 reloj.tick(60)
@@ -360,7 +398,6 @@ def Jugar():
                               
                 Jugador.Dibujar(juego)
                 
-                
 
                 if len(Jugador.lista_disparo) > 0:
                     for x in Jugador.lista_disparo:
@@ -382,7 +419,7 @@ def Jugar():
         
                      
                     
-             
+                
                 if len(lista_invasores) > 0:
                     for enemigo in lista_invasores:
                         enemigo.comportamiento(tiempo)
@@ -407,13 +444,28 @@ def Jugar():
                                                  
                                          if x.rect.top > 900:
                                                  enemigo.lista_disparo1.remove(x)
+                
                                  
-                elif len(lista_invasores) == 0:
-                        global nivel, Velocidad
-                        Velocidad +=5
+                elif len(lista_invasores) == 0 and (nivel == 1) :
+                        Imagen_Disparo_Jugador = "2_proyectil.png"
+                        Disparo_enemigo -= 600
+                        Velocidad +=3
                         nivel += 1
                         Iniciar_nivel()
                         
+                        
+                        
+
+                                 
+                elif len(lista_invasores) == 0 and (nivel == 2) :
+                        print ("Hola")
+                        Imagen_Disparo_Jugador = "3_proyectil.png"
+                        Disparo_enemigo -= 600
+                        Velocidad +=3
+                        nivel += 1
+                        Iniciar_nivel()
+                else:
+                        Win()
                        
                                 
                         
