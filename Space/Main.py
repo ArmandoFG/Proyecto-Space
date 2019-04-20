@@ -21,9 +21,12 @@ print (pygame.display.list_modes())
 ancho = 1366
 alto = 768
 lista_invasores = []
-lista_explosion = []
 
-#lista_invasores = True
+
+global marcador, nivel, Velocidad
+nivel = 1
+marcador = 0
+Velocidad = 5
 
 #______________________Funciones para cerrar el programa
 def Cerrar():
@@ -36,8 +39,8 @@ def Salir():
 
 
 #___________________________________________________________
-        
 
+        
 class Proyectil(pygame.sprite.Sprite):
         def __init__(self,posx,posy, imagen, personaje):
                 pygame.sprite.Sprite.__init__(self)
@@ -78,13 +81,13 @@ class Enemigos(pygame.sprite.Sprite):
 
                 self.imag_invasor = self.lista_invasores[self.posImagen]
                 self.rect = self.imag_invasor.get_rect()
-                self.Velocidad = 5
+                global Velocidad
+                
                 self.rect.top = posy
                 self.rect.left = posx
                 self.Rango_Disparo = 5
                 self.Rango_Movimiento = 5
                 self.lista_disparo1 = []
-                self.lista_explosion = []
                 
 
                 self.derecha = True
@@ -106,12 +109,12 @@ class Enemigos(pygame.sprite.Sprite):
 
         def Mov_Lateral(self):
             if self.derecha == True:
-                self.rect.left = self.rect.left + self.Velocidad
+                self.rect.left = self.rect.left + Velocidad
                 if self.rect.left > self.limite_derecha:
                     self.derecha = False
                     self.contador += 1
             else:
-                self.rect.left = self.rect.left - self.Velocidad
+                self.rect.left = self.rect.left - Velocidad
                 if self.rect.left < self.limite_izquierda:
                     self.derecha = True
         def Mov_Descenso(self):
@@ -123,7 +126,7 @@ class Enemigos(pygame.sprite.Sprite):
             else:
                 self.rect.top += 1
         def Ataque(self):
-            if (randint(0,1000) == self.Rango_Disparo):
+            if (randint(0,100000) == self.Rango_Disparo):
                         x = self.rect.centerx
                         y = self.rect.centery
                         self.Disparo_enemigo(x,y)
@@ -167,12 +170,13 @@ class Nave_espacial(pygame.sprite.Sprite):
                 superficie.blit (self.Nave, self.rect)
         
 def Cargar_Enemigos():
+        
     posx = 265
     for x in range(1,7):
         enemigo = Enemigos (posx,100,265,"enemiga.png")
         lista_invasores.append(enemigo)
         posx = posx + 150
-        
+
     posx = 265
     for x in range(1,7):
         enemigo = Enemigos (posx,0,265,"enemiga.png")
@@ -195,7 +199,8 @@ def Cargar_Enemigos():
     for x in range(1,7):
         enemigo = Enemigos (posx,300,265,"enemiga.png")
         lista_invasores.append(enemigo)
-        posx = posx + 150
+        posx = posx + 150    
+    
 
 
         
@@ -225,29 +230,64 @@ class Nombre_Jugador():
                 with list_Jugador:
                         writer = csv.writer(list_Jugador)
                         writer.writerow(valor)
+
+def Game_Over():
+        
+        G_O = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
+        pygame.display.set_caption ("Space Invaders")
+        Texto_G_O = pygame.font.Font (None, 80)
+        Texto = Texto_G_O.render("GAME OVER" , 0,(51,159,17))
+
+        Texto_Puntaje = pygame.font.Font (None, 80)
+        Texto_P = Texto_Puntaje.render("Puntaje: " + str(marcador), 0,(51,159,17))
+
+        Texto_indicacion = pygame.font.Font (None, 60)
+        Texto_in = Texto_indicacion.render("Presione [s] para ir a la ventana principal ", 0,(51,159,17))
+        
+
+        while True:
+                for event in pygame.event.get():
+                        if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_s:
+                                        Ventana.deiconify()
+                                        pygame.display.quit()
+                                        pygame.quit()
+                                        sys.exit()
+                                                
                 
+                        
+                                        
+                                        
+                        
+                G_O.blit(Texto,(100,200))
+                G_O.blit(Texto_P,(100,300))
+                G_O.blit(Texto_in,(200,550))
+                pygame.display.update()
+
+
         
 
 def Iniciar_nivel():
-                nivel = 1
-                nivel_txt =str(nivel)
-                Level = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
-                pygame.display.set_caption ("Space Invaders")
-                Texto_nivel = pygame.font.Font (None, 80)
-                Texto = Texto_nivel.render("Nivel: " + nivel_txt, 0,(51,159,17))
+        nivel_txt =str(nivel)
+        Level = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
+        pygame.display.set_caption ("Space Invaders")
+        Texto_nivel = pygame.font.Font (None, 80)
+        Texto = Texto_nivel.render("Nivel: " + nivel_txt, 0,(51,159,17))
+        Puntos = 0
+        Texto_indicacion = pygame.font.Font (None, 60)
+        Texto_in = Texto_indicacion.render("Presione [s] para empezar... ", 0,(51,159,17))
 
-                Texto_indicacion = pygame.font.Font (None, 60)
-                Texto_in = Texto_indicacion.render("Presione [s] para empezar... ", 0,(51,159,17))
+        while True:
+                for event in pygame.event.get():
+                        if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_s:
+                                        pygame.display.quit()
+                                        Jugar()
 
-                while True:
-                        for event in pygame.event.get():
-                                if event.type == pygame.KEYDOWN:
-                                        if event.key == pygame.K_s:
-                                                Jugar()
-
-                        Level.blit(Texto,(100,200))
-                        Level.blit(Texto_in,(200,550))
-                        pygame.display.update()
+                        
+                Level.blit(Texto,(100,200))
+                Level.blit(Texto_in,(200,550))
+                pygame.display.update()
 
 
 #            Se crea la pantalla del juego y se minimiza la ventana del menu, se da una resolucion a la pantalla del juego
@@ -260,13 +300,10 @@ def Jugar():
         reloj = pygame.time.Clock()
         #pygame.mixer.music.load("Cancion. verificar peso.mpeg")
         #pygame.mixer.music.play(3)
-        #proyectil_juego = Proyectil()
         Jugador = Nave_espacial()
         jugando = True
-        #vely = 0
         #Enemig = Enemigos(100,100)
         Enemig = Cargar_Enemigos()
-
         
      
         
@@ -274,7 +311,7 @@ def Jugar():
                 tiempo = pygame.time.get_ticks()/1000
                 #Se define el color de fondo, tiempo, posicion de la imagen de nave
                 juego.fill(Jugador.negro)
-                                                
+                               
                 keys = pygame.key.get_pressed()
                # juego.blit(Jugador.Nave,(Jugador.posx,Jugador.posy))
                 reloj.tick(60)
@@ -294,7 +331,7 @@ def Jugar():
                                                 print ("disparo")
                                         
                 if keys[K_LEFT]:
-                        if Jugador.rect.left > -76:
+                        if Jugador.rect.left > -1:
                                 Jugador.rect.left -= Jugador.velocidad_nave
                                 if keys[K_UP]:
                                         if Jugador.rect.top > -75:
@@ -303,7 +340,7 @@ def Jugar():
                                         if Jugador.rect.top < 560:
                                                 Jugador.rect.top += 10
                 elif keys[K_RIGHT]:
-                        if Jugador.rect.right < 1440:
+                        if Jugador.rect.right < 1350:
                                 Jugador.rect.right += Jugador.velocidad_nave
                                 if keys[K_UP]:
                                         if Jugador.rect.top > -75:
@@ -315,18 +352,15 @@ def Jugar():
                         if Jugador.rect.top > -75:
                                 Jugador.rect.top -= 10
                 elif keys[K_DOWN]:
-                        if Jugador.rect.top < 560:
+                        if Jugador.rect.top < 660:
                                 Jugador.rect.top += 10
 
 
-                        
-
-                #if Enemig.Rango_Disparo 
                 
                               
                 Jugador.Dibujar(juego)
-                #Enemig.Dibujar(juego)
-                #Enemig.comportamiento(tiempo)
+                
+                
 
                 if len(Jugador.lista_disparo) > 0:
                     for x in Jugador.lista_disparo:
@@ -337,8 +371,14 @@ def Jugar():
                         else:
                             for enemigo in lista_invasores:
                                 if x.rect.colliderect(enemigo.rect):
-                                    lista_invasores.remove(enemigo)
-                                    Jugador.lista_disparo.remove(x)
+                                        
+
+                                        lista_invasores.remove(enemigo)
+                                        Jugador.lista_disparo.remove(x)
+                                        global marcador
+                                        marcador += 10
+                                        print (marcador)
+                                        
         
                      
                     
@@ -349,22 +389,33 @@ def Jugar():
                         enemigo.Dibujar(juego)
 
                         if enemigo.rect.colliderect(Jugador.rect):
-                                pass
+                                pygame.display.quit()
+                                #pygame.quit()
+                                #sys.exit()
+                                Game_Over()
+                        
                         
                         if len(enemigo.lista_disparo1) > 0:
                                  for x in enemigo.lista_disparo1:
                                          x.Dibujar(juego)
                                          x.Trayecto()
                                          if x.rect.colliderect(Jugador.rect):
-                                                 Ventana.deiconify()
                                                  pygame.display.quit()
-                                                 pygame.quit()
-                                                 sys.exit()
+                                                 #pygame.quit()
+                                                 #sys.exit()
+                                                 Game_Over()
                                                  
                                          if x.rect.top > 900:
                                                  enemigo.lista_disparo1.remove(x)
                                  
-                
+                elif len(lista_invasores) == 0:
+                        global nivel, Velocidad
+                        Velocidad +=5
+                        nivel += 1
+                        Iniciar_nivel()
+                        
+                       
+                                
                         
                 
                 pygame.display.update()
