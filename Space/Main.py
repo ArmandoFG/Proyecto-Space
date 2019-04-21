@@ -21,6 +21,7 @@ print (pygame.display.list_modes())
 ancho = 1366
 alto = 768
 lista_invasores = []
+#lista_asteroide =[]
 
 
 global marcador, nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, Asteroides, Num_x
@@ -46,11 +47,11 @@ def Salir():
 class asteroide(pygame.sprite.Sprite):
         def __init__(self):
                 pygame.sprite.Sprite.__init__(self)
-                self.imagen_asteroide = pygame.image.load ("enemiga2.png")
-                self.imagen_asteroide = pygame.transform.scale(self.imagen_asteroide,(50,45))
+                self.imagen_asteroide = pygame.image.load ("Meteoro.png")
+                #self.imagen_asteroide = pygame.transform.scale(self.imagen_asteroide,(80,60))
                 self.rect = self.imagen_asteroide.get_rect()
                 global Num_x
-                self.v_asteroide = 2
+                self.v_asteroide = 1
                 self.rect.top = -75
                 self.rect.left = Num_x
                 self.aparicion_asteroide = 5
@@ -219,6 +220,9 @@ class Nave_espacial(pygame.sprite.Sprite):
                  
         def Dibujar (self, superficie):
                 superficie.blit (self.Nave, self.rect)
+
+
+
         
 def Cargar_Enemigos():
         
@@ -391,7 +395,7 @@ def Jugar():
         Enemig = Cargar_Enemigos()
         AST = asteroide()
         
-        global nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador
+        global nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, marcador
         
         while True:
                 tiempo = pygame.time.get_ticks()/1000
@@ -452,17 +456,14 @@ def Jugar():
                         x.Dibujar(juego)
                         x.Trayecto()
                         if x.rect.top < -20:
-                            Jugador.lista_disparo.remove(x)
+                                Jugador.lista_disparo.remove(x)            
+                        
                         else:
-                            for enemigo in lista_invasores:
-                                if x.rect.colliderect(enemigo.rect):
-                                        
-
-                                        lista_invasores.remove(enemigo)
-                                        Jugador.lista_disparo.remove(x)
-                                        global marcador
-                                        marcador += 10
-                                        print (marcador)
+                                for enemigo in lista_invasores:
+                                        if x.rect.colliderect(enemigo.rect):
+                                                lista_invasores.remove(enemigo)
+                                                Jugador.lista_disparo.remove(x)
+                                                marcador += 10
                                         
                 AST.comportamiento(tiempo)
                                         
@@ -470,7 +471,13 @@ def Jugar():
                                  for x in AST.lista_asteroide:
                                          x.Dibujar(juego)
                                          x.Trayecto()
-                     
+                                         if AST.rect.top > 900:
+                                                 AST.lista_asteroide.remove(x)
+                                         if x.rect.colliderect(Jugador.rect):
+                                                 pygame.display.quit()
+                                                 Game_Over()
+                                        
+                      
                     
                 
                 if len(lista_invasores) > 0:
@@ -507,7 +514,6 @@ def Jugar():
 
                                  
                 elif len(lista_invasores) == 0 and (nivel == 2) :
-                        print ("Hola")
                         Imagen_Disparo_Jugador = "3_proyectil.png"
                         Disparo_enemigo -= 600
                         Velocidad +=3
