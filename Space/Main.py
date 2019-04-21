@@ -23,12 +23,14 @@ alto = 768
 lista_invasores = []
 
 
-global marcador, nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador
+global marcador, nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, Asteroides, Num_x
 nivel = 1
 marcador = 0
 Velocidad = 5
 Disparo_enemigo = 1600
+Asteroides = 600
 Imagen_Disparo_Jugador = "proyectil_v2.png"
+Num_x = 0
 
 #______________________Funciones para cerrar el programa
 def Cerrar():
@@ -41,7 +43,54 @@ def Salir():
 
 
 #___________________________________________________________
+class asteroide(pygame.sprite.Sprite):
+        def __init__(self):
+                pygame.sprite.Sprite.__init__(self)
+                self.imagen_asteroide = pygame.image.load ("enemiga2.png")
+                self.imagen_asteroide = pygame.transform.scale(self.imagen_asteroide,(50,45))
+                self.rect = self.imagen_asteroide.get_rect()
+                global Num_x
+                self.v_asteroide = 2
+                self.rect.top = -75
+                self.rect.left = Num_x
+                self.aparicion_asteroide = 5
+                self.lista_asteroide = []
+                self.Num_x = 0
+                print (self.rect.left)
+                
 
+        def comportamiento(self, tiempo):
+                self.Rango()
+                self.Rango_x()
+
+
+        def Rango_x(self):
+                global Num_x
+                Num_x = (randint(0,1100))
+                
+                
+
+        def Trayecto(self):
+                self.rect.top = self.rect.top + self.v_asteroide
+
+        def Rango(self):
+                global Asteroides
+                if (randint(0,Asteroides) == self.aparicion_asteroide):
+                        x = self.rect.left
+                        y = self.rect.top
+                        self.aparicion(x,y)
+
+        
+                
+                
+        def aparicion(self,x,y):
+                Aparicion = asteroide()
+                self.lista_asteroide.append(Aparicion)
+                 
+                        
+
+        def Dibujar (self, superficie):
+                superficie.blit (self.imagen_asteroide, self.rect)
         
 class Proyectil(pygame.sprite.Sprite):
         def __init__(self,posx,posy, imagen, personaje):
@@ -72,8 +121,6 @@ class Enemigos(pygame.sprite.Sprite):
                 pygame.sprite.Sprite.__init__(self)
 
 
-
-#_____________________________Fila 1_______________________
 
                 self.imagen_enemigo1 = pygame.image.load (imagen)
                 self.imagen_enemigo1 = pygame.transform.scale(self.imagen_enemigo1,(80,80))
@@ -342,6 +389,7 @@ def Jugar():
         jugando = True
         #Enemig = Enemigos(100,100)
         Enemig = Cargar_Enemigos()
+        AST = asteroide()
         
         global nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador
         
@@ -375,7 +423,7 @@ def Jugar():
                                         if Jugador.rect.top > -75:
                                                 Jugador.rect.top -= 10
                                 elif keys[K_DOWN]:
-                                        if Jugador.rect.top < 560:
+                                        if Jugador.rect.top < 660:
                                                 Jugador.rect.top += 10
                 elif keys[K_RIGHT]:
                         if Jugador.rect.right < 1350:
@@ -384,7 +432,7 @@ def Jugar():
                                         if Jugador.rect.top > -75:
                                                 Jugador.rect.top -= 10
                                 elif keys[K_DOWN]:
-                                        if Jugador.rect.top < 560:
+                                        if Jugador.rect.top < 660:
                                                 Jugador.rect.top += 10
                 elif keys[K_UP]:
                         if Jugador.rect.top > -75:
@@ -416,7 +464,12 @@ def Jugar():
                                         marcador += 10
                                         print (marcador)
                                         
-        
+                AST.comportamiento(tiempo)
+                                        
+                if len(AST.lista_asteroide) > 0:
+                                 for x in AST.lista_asteroide:
+                                         x.Dibujar(juego)
+                                         x.Trayecto()
                      
                     
                 
@@ -427,8 +480,6 @@ def Jugar():
 
                         if enemigo.rect.colliderect(Jugador.rect):
                                 pygame.display.quit()
-                                #pygame.quit()
-                                #sys.exit()
                                 Game_Over()
                         
                         
@@ -438,8 +489,6 @@ def Jugar():
                                          x.Trayecto()
                                          if x.rect.colliderect(Jugador.rect):
                                                  pygame.display.quit()
-                                                 #pygame.quit()
-                                                 #sys.exit()
                                                  Game_Over()
                                                  
                                          if x.rect.top > 900:
