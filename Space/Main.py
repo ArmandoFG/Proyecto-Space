@@ -44,6 +44,58 @@ def Salir():
 
 
 #___________________________________________________________
+class estrellas(pygame.sprite.Sprite):
+        def __init__(self):
+                pygame.sprite.Sprite.__init__(self)
+                self.imagen_estrella = pygame.image.load ("estrella.png")
+                self.imagen_estrella = pygame.transform.scale(self.imagen_estrella,(15,15))
+                self.rect = self.imagen_estrella.get_rect()
+                global Num_x
+                self.v_estrella = 1
+                self.rect.top = -75
+                self.rect.left = Num_x
+                self.aparicion_estrella = 5
+                self.lista_estrella = []
+                self.Num_x = 0
+                print (self.rect.left)
+                
+
+        def comportamiento(self, tiempo):
+                self.Rango()
+                self.Rango_x()
+
+
+        def Rango_x(self):
+                global Num_x
+                Num_x = (randint(0,1200))
+                
+                
+
+        def Trayecto(self):
+                self.rect.top = self.rect.top + self.v_estrella
+
+        def Rango(self):
+                global Asteroides
+                if (randint(0,50) == self.aparicion_estrella):
+                        x = self.rect.left
+                        y = self.rect.top
+                        self.aparicion(x,y)
+
+        
+                
+                
+        def aparicion(self,x,y):
+                Aparicion = estrellas()
+                self.lista_estrella.append(Aparicion)
+                 
+                        
+
+        def Dibujar (self, superficie):
+                superficie.blit (self.imagen_estrella, self.rect)
+
+
+
+            
 class asteroide(pygame.sprite.Sprite):
         def __init__(self):
                 pygame.sprite.Sprite.__init__(self)
@@ -117,14 +169,24 @@ class Proyectil(pygame.sprite.Sprite):
         def Dibujar (self, superficie):
                 superficie.blit (self.imagen_proyectil, self.rect)
                 
+class Explosion(pygame.sprite.Sprite):
+        def __init__ (self, posx, posy, mostrar):
+                pygame.sprite.Sprite.__init__(self)
+                self.gif_explosion = pygame.image.load("explosion.gif")
+                self.rect = self.gif_explosion.get_rect()
+                self.rect.top = posy
+                self.rect.left = posx
+                self.most_exp = mostrar
+
+        def Dibujar(self, superficie):
+                        superficie.blit (self, self.gif_explosion, self.rect)
+                
 class Enemigos(pygame.sprite.Sprite):
         def __init__(self, posx, posy, distancia, imagen):
                 pygame.sprite.Sprite.__init__(self)
 
-
-
                 self.imagen_enemigo1 = pygame.image.load (imagen)
-                self.imagen_enemigo1 = pygame.transform.scale(self.imagen_enemigo1,(80,80))
+                self.imagen_enemigo1 = pygame.transform.scale(self.imagen_enemigo1,(60,60))
                 
                 self.lista_invasores = [self.imagen_enemigo1]
                 self.posImagen = 0
@@ -188,6 +250,10 @@ class Enemigos(pygame.sprite.Sprite):
         def Disparo_enemigo(self,x,y):
                 disparo = Proyectil(x,y,"proyectil_v3.png",False)
                 self.lista_disparo1.append(disparo)
+
+        def Exp_enem (self,x,y):
+                
+                Explosion(x,y,True)
                 
                 
 
@@ -200,7 +266,7 @@ class Nave_espacial(pygame.sprite.Sprite):
         def __init__(self):
                 pygame.sprite.Sprite.__init__(self)
                 self.Nave = pygame.image.load("nave2.png")   #nave2.png
-                self.Nave = pygame.transform.scale(self.Nave,(90,90))
+                self.Nave = pygame.transform.scale(self.Nave,(70,70))
                 self.rect = self.Nave.get_rect()
                 self.rect.centerx = 683
                 self.rect.centery = 690
@@ -226,36 +292,36 @@ class Nave_espacial(pygame.sprite.Sprite):
         
 def Cargar_Enemigos():
         
-    posx = 265
+    posx = 340
     for x in range(1,7):
-        enemigo = Enemigos (posx,100,265,"enemiga2.png")
+        enemigo = Enemigos (posx,120,340,"enemiga2.png")
         lista_invasores.append(enemigo)
-        posx = posx + 150
+        posx = posx + 120
 
 
-    posx = 265
+    posx = 340
     for x in range(1,7):
-        enemigo = Enemigos (posx,0,265,"enemiga2.png")
+        enemigo = Enemigos (posx,20,340,"enemiga2.png")
         lista_invasores.append(enemigo)
-        posx = posx + 150
+        posx = posx + 120
         
-    posx = 265
+    posx = 340
     for x in range(1,7):
-        enemigo = Enemigos (posx,200,265,"enemiga2.png")
+        enemigo = Enemigos (posx,220,340,"enemiga2.png")
         lista_invasores.append(enemigo)
-        posx = posx + 150
+        posx = posx + 120
         
-    posx = 265
+    posx = 340
     for x in range(1,7):
-        enemigo = Enemigos (posx,400,265,"enemiga2.png")
+        enemigo = Enemigos (posx,420,340,"enemiga2.png")
         lista_invasores.append(enemigo)
-        posx = posx + 150
+        posx = posx + 120
         
-    posx = 265
+    posx = 340
     for x in range(1,7):
-        enemigo = Enemigos (posx,300,265,"enemiga2.png")
+        enemigo = Enemigos (posx,320,340,"enemiga2.png")
         lista_invasores.append(enemigo)
-        posx = posx + 150    
+        posx = posx + 120    
         
 
 
@@ -394,6 +460,7 @@ def Jugar():
         #Enemig = Enemigos(100,100)
         Enemig = Cargar_Enemigos()
         AST = asteroide()
+        EST = estrellas()
         
         global nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, marcador
         
@@ -418,6 +485,8 @@ def Jugar():
                                                 x = Jugador.rect.centerx
                                                 y = Jugador.rect.centery
                                                 Jugador.Disparar(x,y)
+                                                pygame.mixer.music.load("disparo de nave.wav")
+                                                pygame.mixer.music.play(1)
                                                 print ("disparo")
                                         
                 if keys[K_LEFT]:
@@ -461,11 +530,23 @@ def Jugar():
                         else:
                                 for enemigo in lista_invasores:
                                         if x.rect.colliderect(enemigo.rect):
+                                               # x = enemigo.rect.left
+                                                #y = enemigo.rect.top
+                                                #enemigo.Exp_enem(x,y)
                                                 lista_invasores.remove(enemigo)
                                                 Jugador.lista_disparo.remove(x)
                                                 marcador += 10
+                                                pygame.mixer.music.load("exp.mp3")
+                                                pygame.mixer.music.play(1)
                                         
                 AST.comportamiento(tiempo)
+                EST.comportamiento(tiempo)
+                if len(EST.lista_estrella) > 0:
+                                 for x in EST.lista_estrella:
+                                         x.Dibujar(juego)
+                                         x.Trayecto()
+                                         if AST.rect.top > 900:
+                                                 AST.lista_estrella.remove(x)
                                         
                 if len(AST.lista_asteroide) > 0:
                                  for x in AST.lista_asteroide:
@@ -515,8 +596,8 @@ def Jugar():
                                  
                 elif len(lista_invasores) == 0 and (nivel == 2) :
                         Imagen_Disparo_Jugador = "3_proyectil.png"
-                        Disparo_enemigo -= 600
-                        Velocidad +=3
+                        Disparo_enemigo -= 400
+                        Velocidad +=1
                         nivel += 1
                         Iniciar_nivel()
                 else:
