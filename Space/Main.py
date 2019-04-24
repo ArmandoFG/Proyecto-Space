@@ -7,6 +7,7 @@ from random import randint
 import winsound
 import csv
 #______________________Ventana Principal_____________________
+#Se configura el titulo de la ventana, dimensiones, color del fondo
 Ventana = tkinter.Tk()
 pygame.init()
 Ventana.title ("Space Invaders") 
@@ -17,13 +18,10 @@ Logo = Label(Ventana, image=img)
 Logo.pack()
 print (pygame.display.list_modes())
 
-#_________________________Variables globales
+#_________________________Variables globales_______________________________
 ancho = 1366
 alto = 768
 lista_invasores = []
-
-
-
 global marcador, nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, Asteroides, Num_x, Aparicion 
 nivel = 1
 marcador = 0
@@ -34,7 +32,8 @@ Imagen_Disparo_Jugador = "proyectil_v2.png"
 Num_x = 0
 Aparicion = 0
 
-#______________________Funciones para cerrar el programa
+#______________________Funciones para cerrar el programa______________________________
+# Se crea las funciones ya sea saliendo pulsando el botn o la x de la ventana
 def Cerrar():
         if messagebox.askokcancel("Salir", "¿Desea salir del juego?"):
             print ("Ha cerrado la ventana") 
@@ -44,7 +43,9 @@ def Salir():
             Ventana.destroy()
 
 
-#___________________________________________________________
+#_________________________Clases_________________________________
+#Se crean las extrellas que se moveran alrrededor del mapa de batalla
+
 class estrellas(pygame.sprite.Sprite):
         def __init__(self):
                 pygame.sprite.Sprite.__init__(self)
@@ -60,39 +61,43 @@ class estrellas(pygame.sprite.Sprite):
                 self.Num_x = 0
                 print (self.rect.left)
                 
-
+        # Define los tiempos para llamar las funciones de rango
         def comportamiento(self, tiempo):
                 self.Rango()
                 self.Rango_x()
 
-
+        # Origina numeros al azar para el eje x para que las estrellas aparescan en distintios lugares
         def Rango_x(self):
                 global Num_x
                 Num_x = (randint(0,1200))
                 
                 
-
+        # Define el movimiento de las estrellas
         def Trayecto(self):
                 self.rect.top = self.rect.top + self.v_estrella
 
+        #Define el tiempo de aparicion de cada una de las estrellas
+
         def Rango(self):
                 global Asteroides
-                if (randint(0,50) == self.aparicion_estrella):
+                if (randint(0,25) == self.aparicion_estrella):
                         x = self.rect.left
                         y = self.rect.top
                         self.aparicion(x,y)
 
         
                 
-                
+        #Agrega las estrellas creadas en una lista        
         def aparicion(self,x,y):
                 Aparicion = estrellas()
                 self.lista_estrella.append(Aparicion)
                  
                         
-
+        # Se dibuja en la ventana las estrellas
         def Dibujar (self, superficie):
                 superficie.blit (self.imagen_estrella, self.rect)
+
+# Se crea las variables correspondientes la el correcto funcionamiento de los asteroides en el mapa
             
 class asteroide(pygame.sprite.Sprite):
         def __init__(self):
@@ -109,21 +114,22 @@ class asteroide(pygame.sprite.Sprite):
                 self.Num_x = 0
                 print (self.rect.left)
                 
-
+        # Define los tiempos para llamar las funciones de rango
         def comportamiento(self, tiempo):
                 self.Rango()
                 self.Rango_x()
 
-
+        # Origina numeros al azar para el eje x para que los asteroides aparescan en distintios lugares
         def Rango_x(self):
                 global Num_x
                 Num_x = (randint(0,1100))
                 
                 
-
+        # Define el movimiento de los asteroides
         def Trayecto(self):
                 self.rect.top = self.rect.top + self.v_asteroide
 
+        #Define el tiempo de aparicion de cada una de los asteroides
         def Rango(self):
                 global Asteroides
                 if (randint(0,Asteroides) == self.aparicion_asteroide):
@@ -131,17 +137,17 @@ class asteroide(pygame.sprite.Sprite):
                         y = self.rect.top
                         self.aparicion(x,y)
 
-        
-                
-                
+        #Agrega los asteroides creadas en una lista        
         def aparicion(self,x,y):
                 Aparicion = asteroide()
                 self.lista_asteroide.append(Aparicion)
                  
                         
-
+        #Se crea una superficie para dibujar los asteroides
         def Dibujar (self, superficie):
                 superficie.blit (self.imagen_asteroide, self.rect)
+
+# Se crea las variables correspondientes la el correcto funcionamiento de los proyectiles en el mapa
         
 class Proyectil(pygame.sprite.Sprite):
         def __init__(self,posx,posy, imagen, personaje):
@@ -155,7 +161,8 @@ class Proyectil(pygame.sprite.Sprite):
                 self.disparo_personaje = personaje
                 
                 
-
+        # Define el movimiento de los proyectiles
+        
         def Trayecto(self):
                 if self.disparo_personaje == False:
                         self.rect.top = self.rect.top + self.v_disparo
@@ -163,22 +170,13 @@ class Proyectil(pygame.sprite.Sprite):
                         self.rect.top = self.rect.top - self.v_disparo
                  
                         
+        #Se crea una superficie para dibujar los proyectiles
 
         def Dibujar (self, superficie):
                 superficie.blit (self.imagen_proyectil, self.rect)
                 
-class Explosion(pygame.sprite.Sprite):
-        def __init__ (self, posx, posy, mostrar):
-                pygame.sprite.Sprite.__init__(self)
-                self.gif_explosion = pygame.image.load("explosion.gif")
-                self.rect = self.gif_explosion.get_rect()
-                self.rect.top = posy
-                self.rect.left = posx
-                self.most_exp = mostrar
-
-        def Dibujar(self, superficie):
-                        superficie.blit (self, self.gif_explosion, self.rect)
-                
+# Se crea las variables correspondientes la el correcto funcionamiento de los proyectiles en el mapa
+            
 class Enemigos(pygame.sprite.Sprite):
         def __init__(self, posx, posy, distancia, imagen):
                 pygame.sprite.Sprite.__init__(self)
@@ -207,16 +205,20 @@ class Enemigos(pygame.sprite.Sprite):
                 self.limite_derecha = posx + distancia
                 self.limite_izquierda= posx - distancia
 
+        #Se crea los tiempos en el que la nave llama la funciones de ataque y movimiento
+
         def comportamiento(self, tiempo):
                 self.Ataque()
                 self.Movimientos()
 
+        #Se encarga de cuantas veces las naves se moveran lateralmente antes del descenso
         def Movimientos(self):
             if self.contador < 2:
                 self.Mov_Lateral()
             else:
                 self.Mov_Descenso()
 
+        #Se define los movimientos de izquierda a derecha de los enemigos y sus limites
         def Mov_Lateral(self):
             if self.derecha == True:
                 self.rect.left = self.rect.left + Velocidad
@@ -227,6 +229,8 @@ class Enemigos(pygame.sprite.Sprite):
                 self.rect.left = self.rect.left - Velocidad
                 if self.rect.left < self.limite_izquierda:
                     self.derecha = True
+
+        #Se define cuanto deben bajar los enemigos
         def Mov_Descenso(self):
             if  self.Maximo_Descenso == self.rect.top:
                 self.contador = 0
@@ -235,6 +239,8 @@ class Enemigos(pygame.sprite.Sprite):
                 
             else:
                 self.rect.top += 1
+
+        # Define al azar cual enemigo disparará hacia el jugador
         def Ataque(self):
                 global Disparo_enemigo
                 if (randint(0,Disparo_enemigo) == self.Rango_Disparo):
@@ -243,22 +249,19 @@ class Enemigos(pygame.sprite.Sprite):
                         self.Disparo_enemigo(x,y)
 
         
-                
+        #Llama la funcion proyectil para dibujar y darle la trayectoria al disparo enemigo       
                 
         def Disparo_enemigo(self,x,y):
                 disparo = Proyectil(x,y,"proyectil_v3.png",False)
-                self.lista_disparo1.append(disparo)
+                self.lista_disparo1.append(disparo)        
 
-        def Exp_enem (self,x,y):
+        #Se crea una superficie para dibujar los enemigos
                 
-                Explosion(x,y,True)
-                
-                
-
-
         def Dibujar (self, superficie):
                 self.imag_invasor = self.lista_invasores[self.posImagen]
                 superficie.blit (self.imag_invasor, self.rect)
+
+# Se crea las variables correspondientes la el correcto funcionamiento de la nave del jugador en el mapa
 
 class Nave_espacial(pygame.sprite.Sprite):
         def __init__(self):
@@ -273,19 +276,23 @@ class Nave_espacial(pygame.sprite.Sprite):
                 
                 self.lista_disparo = []
                 print (self.rect)
-        
+                
+        #Llama la funcion proyectil para dibujar y darle la trayectoria al disparo del jugador       
+
         def Disparar (self,x,y):
         
                 global Imagen_Disparo_Jugador
                 disparo = Proyectil(x,y, Imagen_Disparo_Jugador,True)
                 self.lista_disparo.append(disparo)
-                 
+
+        #Se crea una superficie para dibujar los enemigos
+      
         def Dibujar (self, superficie):
                 superficie.blit (self.Nave, self.rect)
 
 
+#Se carga las imagenes de los enemigos, y se le asigna una posicion en un determinado rango
 
-        
 def Cargar_Enemigos():
         
     posx = 340
@@ -321,7 +328,7 @@ def Cargar_Enemigos():
         
 
 
-        
+# Obtener el nombre del jugador y agregarlo en un archivo csv        
 
 class Nombre_Jugador():
         def __init__(self):
@@ -349,6 +356,8 @@ class Nombre_Jugador():
                         writer = csv.writer(list_Jugador)
                         writer.writerow(valor)
 
+#Esta funcion creara una ventana nueva cuando se superen los tres niveles del juego y colocará el puntaje final obtenido
+
 def Win():
         WIN = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
         pygame.display.set_caption ("Space Invaders")
@@ -361,7 +370,7 @@ def Win():
         Texto_indicacion = pygame.font.Font (None, 60)
         Texto_in = Texto_indicacion.render("Presione [s] para ir a la ventana principal ", 0,(51,159,17))
         
-
+        #Se le asigna un ciclo whie para que la ventana se cierre al presionar la tecla S
         while True:
                 for event in pygame.event.get():
                         if event.type == pygame.KEYDOWN:
@@ -374,12 +383,15 @@ def Win():
                 
                         
                                         
-                                        
-                        
+                # Se dibuja los diferentes texto en la pantalla, indicandole sus coordenadas                  
+                     
                 WIN.blit(Texto,(100,200))
                 WIN.blit(Texto_P,(100,300))
                 WIN.blit(Texto_in,(200,550))
                 pygame.display.update()
+
+#Esta funcion creara una ventana nueva cuando el jugador pierda y colocará el puntaje final obtenido
+
 
 def Game_Over():
         
@@ -395,6 +407,8 @@ def Game_Over():
         Texto_in = Texto_indicacion.render("Presione [s] para ir a la ventana principal ", 0,(51,159,17))
         
 
+        #Se le asigna un ciclo whie para que la ventana se cierre al presionar la tecla S
+
         while True:
                 for event in pygame.event.get():
                         if event.type == pygame.KEYDOWN:
@@ -402,12 +416,14 @@ def Game_Over():
                                         Ventana.deiconify()
                                         pygame.display.quit()
                                         pygame.quit()
+                                        
                                         sys.exit()
                                                 
                 
                         
                                         
-                                        
+                 # Se dibuja los diferentes texto en la pantalla, indicandole sus coordenadas                  
+                        
                         
                 G_O.blit(Texto,(100,200))
                 G_O.blit(Texto_P,(100,300))
@@ -415,6 +431,7 @@ def Game_Over():
                 pygame.display.update()
 
 
+#Esta funcion creara una ventana nueva cuando el jugador presione el boton de jugar y indicara en que nivel se encuentra el jugador
         
 
 def Iniciar_nivel():
@@ -427,6 +444,9 @@ def Iniciar_nivel():
         Texto_indicacion = pygame.font.Font (None, 60)
         Texto_in = Texto_indicacion.render("Presione [s] para empezar... ", 0,(51,159,17))
 
+        #Se le asigna un ciclo whie para que la ventana se cierre y comience el juego al presionar la tecla S
+
+
         while True:
                 for event in pygame.event.get():
                         if event.type == pygame.KEYDOWN:
@@ -434,7 +454,10 @@ def Iniciar_nivel():
                                         pygame.display.quit()
                                         Jugar()
 
-                        
+
+                # Se dibuja los diferentes texto en la pantalla, indicandole sus coordenadas                  
+
+                
                 Level.blit(Texto,(100,200))
                 Level.blit(Texto_in,(200,550))
                 pygame.display.update()
@@ -444,7 +467,7 @@ def Iniciar_nivel():
 #            Se crea la pantalla del juego y se minimiza la ventana del menu, se da una resolucion a la pantalla del juego
 #            se carga la imagen de la nave, se le da su posicionamiento y se carga la cancion del juego
 def Jugar():
-        global nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, marcador,lista_asteroide,Aparicion
+        global nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, marcador,lista_asteroide,Aparicion, Asteroides
         Cont = 1
         Nombre = Nombre_Jugador()
         Ventana.withdraw()
@@ -461,18 +484,20 @@ def Jugar():
         Aparicion = asteroide()
         
         
-        
+        # El while es donde se estara ejecutando cada una de las instrucciones de las clases para que el juego corra
         while True:
                 tiempo = pygame.time.get_ticks()/1000
+
                 #Se define el color de fondo, tiempo, posicion de la imagen de nave
                 juego.fill(Jugador.negro)
                 
                 keys = pygame.key.get_pressed()
                # juego.blit(Jugador.Nave,(Jugador.posx,Jugador.posy))
                 reloj.tick(60)
-                #proyectil_juego.Trayecto()
-                # Se define los eventos para los movimientos derecha, izquierda, arriba, abajo de la nave
+                
+                # Se define los eventos para los movimientos derecha, izquierda, arriba, abajo, y disparo de la nave
                 # y las coordenadas limites para que no se salga de la ventana
+
                 for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                                 pygame.quit()
@@ -513,10 +538,11 @@ def Jugar():
                                 Jugador.rect.top += 10
 
 
-                
+                #Funcion Dibujar del jugador
                               
                 Jugador.Dibujar(juego)
-                
+
+                # Indica cuandose debe dibujar el disparo del jugador y detectar las coliciones con los asteroides y enemigos
 
                 if len(Jugador.lista_disparo) > 0:
                     for x in Jugador.lista_disparo:
@@ -545,13 +571,18 @@ def Jugar():
                                         
                 AST.comportamiento(tiempo)
                 EST.comportamiento(tiempo)
+
+                # Indica cuandose debe dibujar las estrellas 
+                
                 if len(EST.lista_estrella) > 0:
                                  for x in EST.lista_estrella:
                                          x.Dibujar(juego)
                                          x.Trayecto()
                                          if AST.rect.top > 900:
                                                  AST.lista_estrella.remove(x)
-                                        
+
+                 # Indica cuandose debe dibujar los asteroides y detectar las coliciones con el jugador y las balas del jugador
+                                       
                 if len(AST.lista_asteroide) > 0:
                                  for x in AST.lista_asteroide:
                                          x.Dibujar(juego)
@@ -564,7 +595,8 @@ def Jugar():
                                         
                       
                     
-                
+                # Indica cuandose debe dibujar los enemigos y sus movimientos y detectar las coliciones con el jugador y las balas del jugador
+
                 if len(lista_invasores) > 0:
                     for enemigo in lista_invasores:
                         enemigo.comportamiento(tiempo)
@@ -585,6 +617,8 @@ def Jugar():
                                                  
                                          if x.rect.top > 900:
                                                  enemigo.lista_disparo1.remove(x)
+
+                #Se incrementa el nivel cuando la lista de invasores es igual a 0
                 
                                  
                 elif len(lista_invasores) == 0 and (nivel == 1) :
@@ -592,18 +626,23 @@ def Jugar():
                         Disparo_enemigo -= 600
                         Velocidad +=3
                         nivel += 1
+                        Asteroides -= 150
                         Iniciar_nivel()
                         
                         
                         
+                        
+                #Se incrementa el nivel cuando la lista de invasores es igual a 0
 
-                                 
+                                
                 elif len(lista_invasores) == 0 and (nivel == 2) :
                         Imagen_Disparo_Jugador = "3_proyectil.png"
                         Disparo_enemigo -= 400
                         Velocidad +=1
                         nivel += 1
+                        Asteroides -= 150
                         Iniciar_nivel()
+                        
                 else:
                         Win()
                        
