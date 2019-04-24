@@ -21,10 +21,10 @@ print (pygame.display.list_modes())
 ancho = 1366
 alto = 768
 lista_invasores = []
-#lista_asteroide =[]
 
 
-global marcador, nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, Asteroides, Num_x
+
+global marcador, nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, Asteroides, Num_x, Aparicion 
 nivel = 1
 marcador = 0
 Velocidad = 5
@@ -32,6 +32,7 @@ Disparo_enemigo = 1600
 Asteroides = 600
 Imagen_Disparo_Jugador = "proyectil_v2.png"
 Num_x = 0
+Aparicion = 0
 
 #______________________Funciones para cerrar el programa
 def Cerrar():
@@ -92,21 +93,18 @@ class estrellas(pygame.sprite.Sprite):
 
         def Dibujar (self, superficie):
                 superficie.blit (self.imagen_estrella, self.rect)
-
-
-
             
 class asteroide(pygame.sprite.Sprite):
         def __init__(self):
                 pygame.sprite.Sprite.__init__(self)
                 self.imagen_asteroide = pygame.image.load ("Meteoro.png")
-                #self.imagen_asteroide = pygame.transform.scale(self.imagen_asteroide,(80,60))
                 self.rect = self.imagen_asteroide.get_rect()
                 global Num_x
                 self.v_asteroide = 1
                 self.rect.top = -75
                 self.rect.left = Num_x
                 self.aparicion_asteroide = 5
+                global Aparicion
                 self.lista_asteroide = []
                 self.Num_x = 0
                 print (self.rect.left)
@@ -265,21 +263,19 @@ class Enemigos(pygame.sprite.Sprite):
 class Nave_espacial(pygame.sprite.Sprite):
         def __init__(self):
                 pygame.sprite.Sprite.__init__(self)
-                self.Nave = pygame.image.load("nave2.png")   #nave2.png
+                self.Nave = pygame.image.load("nave2.png")   
                 self.Nave = pygame.transform.scale(self.Nave,(70,70))
                 self.rect = self.Nave.get_rect()
                 self.rect.centerx = 683
                 self.rect.centery = 690
                 self.velocidad_nave = 10
                 self.negro = (0,0,0)
-                #self.rect.x = self.rect.centerx 
-                #self.rect.y = self.rect.centery
+                
                 self.lista_disparo = []
                 print (self.rect)
         
         def Disparar (self,x,y):
-                #x = 570
-                #y = 500
+        
                 global Imagen_Disparo_Jugador
                 disparo = Proyectil(x,y, Imagen_Disparo_Jugador,True)
                 self.lista_disparo.append(disparo)
@@ -442,11 +438,13 @@ def Iniciar_nivel():
                 Level.blit(Texto,(100,200))
                 Level.blit(Texto_in,(200,550))
                 pygame.display.update()
+                
 
 
 #            Se crea la pantalla del juego y se minimiza la ventana del menu, se da una resolucion a la pantalla del juego
 #            se carga la imagen de la nave, se le da su posicionamiento y se carga la cancion del juego
 def Jugar():
+        global nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, marcador,lista_asteroide,Aparicion
         Cont = 1
         Nombre = Nombre_Jugador()
         Ventana.withdraw()
@@ -457,12 +455,12 @@ def Jugar():
         pygame.mixer.music.play(3)
         Jugador = Nave_espacial()
         jugando = True
-        #Enemig = Enemigos(100,100)
         Enemig = Cargar_Enemigos()
         AST = asteroide()
         EST = estrellas()
+        Aparicion = asteroide()
         
-        global nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, marcador
+        
         
         while True:
                 tiempo = pygame.time.get_ticks()/1000
@@ -485,8 +483,8 @@ def Jugar():
                                                 x = Jugador.rect.centerx
                                                 y = Jugador.rect.centery
                                                 Jugador.Disparar(x,y)
-                                                pygame.mixer.music.load("disparo de nave.wav")
-                                                pygame.mixer.music.play(1)
+                                                Disparo_son = pygame.mixer.Sound("disparo de nave.wav")
+                                                Disparo_son.play()
                                                 print ("disparo")
                                         
                 if keys[K_LEFT]:
@@ -525,19 +523,25 @@ def Jugar():
                         x.Dibujar(juego)
                         x.Trayecto()
                         if x.rect.top < -20:
-                                Jugador.lista_disparo.remove(x)            
+                                Jugador.lista_disparo.remove(x)        
                         
                         else:
                                 for enemigo in lista_invasores:
                                         if x.rect.colliderect(enemigo.rect):
-                                               # x = enemigo.rect.left
-                                                #y = enemigo.rect.top
-                                                #enemigo.Exp_enem(x,y)
                                                 lista_invasores.remove(enemigo)
                                                 Jugador.lista_disparo.remove(x)
                                                 marcador += 10
-                                                pygame.mixer.music.load("exp.mp3")
-                                                pygame.mixer.music.play(1)
+                                                Exp_son = pygame.mixer.Sound("muerte.wav")
+                                                Exp_son.play()
+                                                
+                                                
+                        for Aparicion in AST.lista_asteroide:
+                                        if x.rect.colliderect(Aparicion.rect):
+                                                AST.lista_asteroide.remove(Aparicion)
+                                                Jugador.lista_disparo.remove(x)
+                                                marcador += 10
+                                                Exp_son = pygame.mixer.Sound("muerte.wav")
+                                                Exp_son.play()
                                         
                 AST.comportamiento(tiempo)
                 EST.comportamiento(tiempo)
@@ -552,7 +556,7 @@ def Jugar():
                                  for x in AST.lista_asteroide:
                                          x.Dibujar(juego)
                                          x.Trayecto()
-                                         if AST.rect.top > 900:
+                                         if AST.rect.top > 1200:
                                                  AST.lista_asteroide.remove(x)
                                          if x.rect.colliderect(Jugador.rect):
                                                  pygame.display.quit()
