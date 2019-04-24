@@ -22,7 +22,7 @@ print (pygame.display.list_modes())
 ancho = 1366
 alto = 768
 lista_invasores = []
-global marcador, nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, Asteroides, Num_x, Aparicion 
+global marcador, nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, Asteroides, Num_x, Aparicion , Name
 nivel = 1
 marcador = 0
 Velocidad = 5
@@ -31,6 +31,7 @@ Asteroides = 600
 Imagen_Disparo_Jugador = "proyectil_v2.png"
 Num_x = 0
 Aparicion = 0
+Name = ''
 
 #______________________Funciones para cerrar el programa______________________________
 # Se crea las funciones ya sea saliendo pulsando el botn o la x de la ventana
@@ -333,6 +334,7 @@ def Cargar_Enemigos():
 class Nombre_Jugador():
         def __init__(self):
         
+                global Name
                 
                 self.Canvas_Jugador = Canvas (Ventana, bg = "black", width = 250, height = 300)
                 self.Canvas_Jugador.pack()
@@ -350,19 +352,26 @@ class Nombre_Jugador():
                 self.B_Jugar2.place(x=120,y=100)
 
         def Lista_J(self):
-                valor=[self.dato.get()]
-                list_Jugador = open ('Jugadores.csv','w')
-                with list_Jugador:
-                        writer = csv.writer(list_Jugador)
-                        writer.writerow(valor)
+                global Name
+                archivo = open ("Jugadores.csv","a")
+                Name = self.dato.get()
+                archivo.write(Name)
+                archivo.write("\n")
+                print (Name)
+                archivo.close
+                
 
 #Esta funcion creara una ventana nueva cuando se superen los tres niveles del juego y colocará el puntaje final obtenido
 
 def Win():
+        global Name
         WIN = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
         pygame.display.set_caption ("Space Invaders")
         Texto_WIN= pygame.font.Font (None, 80)
         Texto = Texto_WIN.render("Ganó el juego" , 0,(51,159,17))
+
+        Texto_Name = pygame.font.Font (None, 80)
+        Texto_N = Texto_Name.render("Jugador: " + Name, 0,(51,159,17))
 
         Texto_Puntaje = pygame.font.Font (None, 80)
         Texto_P = Texto_Puntaje.render("Puntaje: " + str(marcador), 0,(51,159,17))
@@ -384,7 +393,7 @@ def Win():
                         
                                         
                 # Se dibuja los diferentes texto en la pantalla, indicandole sus coordenadas                  
-                     
+                WIN.blit(Texto_N,(850,200))  
                 WIN.blit(Texto,(100,200))
                 WIN.blit(Texto_P,(100,300))
                 WIN.blit(Texto_in,(200,550))
@@ -394,11 +403,16 @@ def Win():
 
 
 def Game_Over():
+        global Name
         
         G_O = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
         pygame.display.set_caption ("Space Invaders")
         Texto_G_O = pygame.font.Font (None, 80)
         Texto = Texto_G_O.render("GAME OVER" , 0,(51,159,17))
+
+        Texto_Name = pygame.font.Font (None, 80)
+        Texto_N = Texto_Name.render("Jugador: " + Name, 0,(51,159,17))
+        
 
         Texto_Puntaje = pygame.font.Font (None, 80)
         Texto_P = Texto_Puntaje.render("Puntaje: " + str(marcador), 0,(51,159,17))
@@ -424,7 +438,7 @@ def Game_Over():
                                         
                  # Se dibuja los diferentes texto en la pantalla, indicandole sus coordenadas                  
                         
-                        
+                G_O.blit(Texto_N,(850,200))        
                 G_O.blit(Texto,(100,200))
                 G_O.blit(Texto_P,(100,300))
                 G_O.blit(Texto_in,(200,550))
@@ -435,12 +449,15 @@ def Game_Over():
         
 
 def Iniciar_nivel():
+        global Name
         nivel_txt =str(nivel)
         Level = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
         pygame.display.set_caption ("Space Invaders")
         Texto_nivel = pygame.font.Font (None, 80)
         Texto = Texto_nivel.render("Nivel: " + nivel_txt, 0,(51,159,17))
         Puntos = 0
+        Texto_Name = pygame.font.Font (None, 80)
+        Texto_N = Texto_Name.render("Jugador: " + Name, 0,(51,159,17))
         Texto_indicacion = pygame.font.Font (None, 60)
         Texto_in = Texto_indicacion.render("Presione [s] para empezar... ", 0,(51,159,17))
 
@@ -457,7 +474,7 @@ def Iniciar_nivel():
 
                 # Se dibuja los diferentes texto en la pantalla, indicandole sus coordenadas                  
 
-                
+                Level.blit(Texto_N,(850,200))
                 Level.blit(Texto,(100,200))
                 Level.blit(Texto_in,(200,550))
                 pygame.display.update()
