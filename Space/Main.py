@@ -6,6 +6,7 @@ from pygame import *
 from random import randint
 import winsound
 import csv
+import threading
 #______________________Ventana Principal_____________________
 #Se configura el titulo de la ventana, dimensiones, color del fondo
 Ventana = tkinter.Tk()
@@ -81,7 +82,7 @@ class estrellas(pygame.sprite.Sprite):
 
         def Rango(self):
                 global Asteroides
-                if (randint(0,25) == self.aparicion_estrella):
+                if (randint(0,15) == self.aparicion_estrella):
                         x = self.rect.left
                         y = self.rect.top
                         self.aparicion(x,y)
@@ -335,7 +336,7 @@ class Nombre_Jugador():
         def __init__(self):
         
                 global Name
-                
+                pygame.font.init()
                 self.Canvas_Jugador = Canvas (Ventana, bg = "black", width = 250, height = 300)
                 self.Canvas_Jugador.pack()
 
@@ -365,6 +366,7 @@ class Nombre_Jugador():
 
 def Win():
         global Name
+        pygame.init()
         WIN = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
         pygame.display.set_caption ("Space Invaders")
         Texto_WIN= pygame.font.Font (None, 80)
@@ -400,25 +402,24 @@ def Win():
                 pygame.display.update()
 
 #Esta funcion creara una ventana nueva cuando el jugador pierda y colocará el puntaje final obtenido
-
-
 def Game_Over():
         global Name
-        
+        pygame.init()
         G_O = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
         pygame.display.set_caption ("Space Invaders")
-        Texto_G_O = pygame.font.Font (None, 80)
-        Texto = Texto_G_O.render("GAME OVER" , 0,(51,159,17))
 
-        Texto_Name = pygame.font.Font (None, 80)
-        Texto_N = Texto_Name.render("Jugador: " + Name, 0,(51,159,17))
+        imagen_gameover = pygame.image.load ('game_over.gif')
+        imagen_gameover = pygame.transform.scale(imagen_gameover,(400,500))
+
+        Texto_Name = pygame.font.Font (None, 45)
+        Texto_N = Texto_Name.render("Jugador: " + Name, 0,(255,255,255))
         
 
-        Texto_Puntaje = pygame.font.Font (None, 80)
-        Texto_P = Texto_Puntaje.render("Puntaje: " + str(marcador), 0,(51,159,17))
+        Texto_Puntaje = pygame.font.Font (None, 45)
+        Texto_P = Texto_Puntaje.render("Puntaje: " + str(marcador), 0,(255,255,255))
 
-        Texto_indicacion = pygame.font.Font (None, 60)
-        Texto_in = Texto_indicacion.render("Presione [s] para ir a la ventana principal ", 0,(51,159,17))
+        Texto_indicacion = pygame.font.Font (None, 30)
+        Texto_in = Texto_indicacion.render("Presione [s] para ir a la ventana principal ", 0,(255,255,255))
         
 
         #Se le asigna un ciclo whie para que la ventana se cierre al presionar la tecla S
@@ -430,18 +431,16 @@ def Game_Over():
                                         Ventana.deiconify()
                                         pygame.display.quit()
                                         pygame.quit()
-                                        
                                         sys.exit()
                                                 
                 
                         
                                         
                  # Se dibuja los diferentes texto en la pantalla, indicandole sus coordenadas                  
-                        
-                G_O.blit(Texto_N,(850,200))        
-                G_O.blit(Texto,(100,200))
-                G_O.blit(Texto_P,(100,300))
-                G_O.blit(Texto_in,(200,550))
+                G_O.blit(imagen_gameover,(500,100))
+                G_O.blit(Texto_N,(550,500))        
+                G_O.blit(Texto_P,(550,550))
+                G_O.blit(Texto_in,(500,700))
                 pygame.display.update()
 
 
@@ -450,6 +449,7 @@ def Game_Over():
 
 def Iniciar_nivel():
         global Name
+        pygame.font.init()
         nivel_txt =str(nivel)
         Level = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
         pygame.display.set_caption ("Space Invaders")
@@ -470,6 +470,7 @@ def Iniciar_nivel():
                                 if event.key == pygame.K_s:
                                         pygame.display.quit()
                                         Jugar()
+                                        pygame.quit()
 
 
                 # Se dibuja los diferentes texto en la pantalla, indicandole sus coordenadas                  
@@ -484,15 +485,29 @@ def Iniciar_nivel():
 #            Se crea la pantalla del juego y se minimiza la ventana del menu, se da una resolucion a la pantalla del juego
 #            se carga la imagen de la nave, se le da su posicionamiento y se carga la cancion del juego
 def Jugar():
+        pygame.init()
+        #Se llaman las variables globales
         global nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, marcador,lista_asteroide,Aparicion, Asteroides
-        Cont = 1
-        Nombre = Nombre_Jugador()
+
+        
+        #Cont = 1
+        
+        #Se minimixa la ventana principal
         Ventana.withdraw()
+        #Se definen el tamaño de la pantalladel juego
         juego = pygame.display.set_mode((ancho, alto),pygame.FULLSCREEN)
         pygame.display.set_caption ("Space Invaders")
+
+        #Se crea una variable reloj 
         reloj = pygame.time.Clock()
+
+        #se define una cancion de fondo para el juego
+        
         pygame.mixer.music.load("Cancion. verificar peso.mpeg")
         pygame.mixer.music.play(3)
+
+        #Se le asignan unas variables a funciones y a clases para ser llamadas cuando se necesiten
+        Nombre = Nombre_Jugador()
         Jugador = Nave_espacial()
         jugando = True
         Enemig = Cargar_Enemigos()
@@ -501,14 +516,21 @@ def Jugar():
         Aparicion = asteroide()
         
         
+        
+        
         # El while es donde se estara ejecutando cada una de las instrucciones de las clases para que el juego corra
         while True:
                 tiempo = pygame.time.get_ticks()/1000
 
+                Texto_puntaje = pygame.font.Font (None, 50)
+                Texto_Pantalla = Texto_puntaje.render("Puntaje: " + str(marcador), 0,(255,255,255))
+                
                 #Se define el color de fondo, tiempo, posicion de la imagen de nave
                 juego.fill(Jugador.negro)
-                
+
+                # Se le asigna una variable al evento cuando se dejapresionada una tecla
                 keys = pygame.key.get_pressed()
+
                # juego.blit(Jugador.Nave,(Jugador.posx,Jugador.posy))
                 reloj.tick(60)
                 
@@ -522,12 +544,17 @@ def Jugar():
                         if jugando == True:
                                 if event.type == pygame.KEYDOWN:
                                         if event.key == pygame.K_SPACE:
+                                                #Se crean variables x,y para tomar la posicio actual de la nave, para asignarselo a la trayectoria del disparo
                                                 x = Jugador.rect.centerx
                                                 y = Jugador.rect.centery
                                                 Jugador.Disparar(x,y)
+                                                # Se define un sonido al disparo de la nave
                                                 Disparo_son = pygame.mixer.Sound("disparo de nave.wav")
                                                 Disparo_son.play()
                                                 print ("disparo")
+
+                                                
+                # Se definen los eventos al presionar las teclas
                                         
                 if keys[K_LEFT]:
                         if Jugador.rect.left > -1:
@@ -608,6 +635,7 @@ def Jugar():
                                                  AST.lista_asteroide.remove(x)
                                          if x.rect.colliderect(Jugador.rect):
                                                  pygame.display.quit()
+                                                 pygame.quit()
                                                  Game_Over()
                                         
                       
@@ -621,6 +649,7 @@ def Jugar():
 
                         if enemigo.rect.colliderect(Jugador.rect):
                                 pygame.display.quit()
+                                pygame.quit()
                                 Game_Over()
                         
                         
@@ -630,6 +659,7 @@ def Jugar():
                                          x.Trayecto()
                                          if x.rect.colliderect(Jugador.rect):
                                                  pygame.display.quit()
+                                                 pygame.quit()
                                                  Game_Over()
                                                  
                                          if x.rect.top > 900:
@@ -664,7 +694,8 @@ def Jugar():
                         Win()
                        
                                 
-                        
+                
+                juego.blit(Texto_Pantalla,(20,20))
                 
                 pygame.display.update()
 
