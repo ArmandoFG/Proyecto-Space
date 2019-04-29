@@ -1,3 +1,16 @@
+#***************************************
+#*Tecnologico de Costa Rica            *
+#*                                     *
+#*Estudiantes:                         *
+#*                                     *
+#*Armando Fallas Garro  2019226675     *
+#*Kevin Calderón Esquivel  20191517479 *
+#*                                     *
+#*Taller de programacion               *
+#*                                     *
+#*Profesor: Antonio González Torres    *
+#*                                     *
+#***************************************
 import tkinter
 from tkinter import *
 from tkinter import messagebox
@@ -6,6 +19,7 @@ from pygame import *
 from random import randint
 import winsound
 import csv
+import json
 import threading
 #______________________Ventana Principal_____________________
 #Se configura el titulo de la ventana, dimensiones, color del fondo
@@ -22,18 +36,20 @@ print (pygame.display.list_modes())
 #_________________________Variables globales_______________________________
 ancho = 1366
 alto = 768
-lista_invasores = []
-global marcador, nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, Asteroides, Num_x, Aparicion , Name
+
+global marcador, nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, Asteroides, Num_x, Aparicion , Name, datos, explosion, lista_invasores
 nivel = 1
 marcador = 0
 Velocidad = 5
 Disparo_enemigo = 1600
-Asteroides = 600
+Asteroides = 500
 Imagen_Disparo_Jugador = "proyectil_v2.png"
 Num_x = 0
 Aparicion = 0
 Name = ''
-
+datos = [[],[]]
+explosion = False
+lista_invasores = []
 #______________________Funciones para cerrar el programa______________________________
 # Se crea las funciones ya sea saliendo pulsando el botn o la x de la ventana
 def Cerrar():
@@ -61,7 +77,7 @@ class estrellas(pygame.sprite.Sprite):
                 self.aparicion_estrella = 5
                 self.lista_estrella = []
                 self.Num_x = 0
-                print (self.rect.left)
+                
                 
         # Define los tiempos para llamar las funciones de rango
         def comportamiento(self, tiempo):
@@ -82,7 +98,7 @@ class estrellas(pygame.sprite.Sprite):
 
         def Rango(self):
                 global Asteroides
-                if (randint(0,15) == self.aparicion_estrella):
+                if (randint(0,7) == self.aparicion_estrella):
                         x = self.rect.left
                         y = self.rect.top
                         self.aparicion(x,y)
@@ -115,6 +131,15 @@ class asteroide(pygame.sprite.Sprite):
                 self.lista_asteroide = []
                 self.Num_x = 0
                 print (self.rect.left)
+
+        def explosion_asteroide(self):
+                x = self.rect.centerx
+                y = self.rect.centery
+                self.explotar(x,y)
+                        
+
+        def explotar(self,x,y):
+                EXP(x,y)
                 
         # Define los tiempos para llamar las funciones de rango
         def comportamiento(self, tiempo):
@@ -124,7 +149,7 @@ class asteroide(pygame.sprite.Sprite):
         # Origina numeros al azar para el eje x para que los asteroides aparescan en distintios lugares
         def Rango_x(self):
                 global Num_x
-                Num_x = (randint(0,1100))
+                Num_x = (randint(0,1200))
                 
                 
         # Define el movimiento de los asteroides
@@ -161,6 +186,7 @@ class Proyectil(pygame.sprite.Sprite):
                 self.rect.top = posy
                 self.rect.left = posx
                 self.disparo_personaje = personaje
+
                 
                 
         # Define el movimiento de los proyectiles
@@ -176,6 +202,25 @@ class Proyectil(pygame.sprite.Sprite):
 
         def Dibujar (self, superficie):
                 superficie.blit (self.imagen_proyectil, self.rect)
+
+# Se define laclase para la aparicion de explosiones 
+                
+class EXP(pygame.sprite.Sprite):
+        def __init__(self,posx,posy):
+                global juego
+                pygame.sprite.Sprite.__init__(self)
+                self.imagen_exp = pygame.image.load("exp.gif")
+                self.imagen_exp = self.imagen_exp.convert()
+                self.imagen_exp = pygame.transform.scale(self.imagen_exp,(100,100))
+                self.rect = self.imagen_exp.get_rect()
+                self.rect.top = posy -30
+                self.rect.left = posx -30
+                self.Dibujar(juego)
+                
+        # Se dibuja la explosion en la ventana principal del juego       
+        def Dibujar (self, superficie):
+                
+                superficie.blit (self.imagen_exp, self.rect)      
                 
 # Se crea las variables correspondientes la el correcto funcionamiento de los proyectiles en el mapa
             
@@ -191,21 +236,36 @@ class Enemigos(pygame.sprite.Sprite):
 
                 self.imag_invasor = self.lista_invasores[self.posImagen]
                 self.rect = self.imag_invasor.get_rect()
-                global Velocidad
+
+                # Se llaman las variables globales velocidad y explosion
+                global Velocidad, explosion
                 
                 self.rect.top = posy
                 self.rect.left = posx
                 self.Rango_Disparo = 5
                 self.Rango_Movimiento = 5
                 self.lista_disparo1 = []
+                self.lista_exp = []
                 
 
                 self.derecha = True
                 self.contador = 0
                 self.Maximo_Descenso = self.rect.top + 15
 
+                #Se crean las variables para el movimiento de derecha a izquierda de los enemigos
                 self.limite_derecha = posx + distancia
                 self.limite_izquierda= posx - distancia
+
+                
+        def explosion_enemigo(self):
+                x = self.rect.centerx
+                y = self.rect.centery
+                self.explotar(x,y)
+                        
+
+        def explotar(self,x,y):
+                EXP(x,y)
+                
 
         #Se crea los tiempos en el que la nave llama la funciones de ataque y movimiento
 
@@ -335,7 +395,8 @@ def Cargar_Enemigos():
 class Nombre_Jugador():
         def __init__(self):
         
-                global Name
+                global Name, marcador
+                marcador = 0
                 pygame.font.init()
                 self.Canvas_Jugador = Canvas (Ventana, bg = "black", width = 250, height = 300)
                 self.Canvas_Jugador.pack()
@@ -400,6 +461,16 @@ def Win():
                 WIN.blit(Texto_P,(100,300))
                 WIN.blit(Texto_in,(200,550))
                 pygame.display.update()
+
+
+def Resultados():
+        global Name, marcador, datos
+        datos= [datos[0] + [Name], datos[1] + [marcador]]
+        #datos = {'Jugado' : [Name], 'Puntuacion' : [marcador]}
+        
+        with open('Jugadores.json', 'w') as file:
+                json.dump(datos, file)
+        print ()
 
 #Esta funcion creara una ventana nueva cuando el jugador pierda y colocará el puntaje final obtenido
 def Game_Over():
@@ -487,10 +558,8 @@ def Iniciar_nivel():
 def Jugar():
         pygame.init()
         #Se llaman las variables globales
-        global nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, marcador,lista_asteroide,Aparicion, Asteroides
+        global nivel, Velocidad, Disparo_enemigo, Imagen_Disparo_Jugador, marcador,lista_asteroide,Aparicion, Asteroides, explosion, juego, lista_invasores
 
-        
-        #Cont = 1
         
         #Se minimixa la ventana principal
         Ventana.withdraw()
@@ -598,6 +667,8 @@ def Jugar():
                         else:
                                 for enemigo in lista_invasores:
                                         if x.rect.colliderect(enemigo.rect):
+                                                #explosion = True
+                                                enemigo.explosion_enemigo()
                                                 lista_invasores.remove(enemigo)
                                                 Jugador.lista_disparo.remove(x)
                                                 marcador += 10
@@ -607,6 +678,7 @@ def Jugar():
                                                 
                         for Aparicion in AST.lista_asteroide:
                                         if x.rect.colliderect(Aparicion.rect):
+                                                Aparicion.explosion_asteroide()
                                                 AST.lista_asteroide.remove(Aparicion)
                                                 Jugador.lista_disparo.remove(x)
                                                 marcador += 10
@@ -634,9 +706,17 @@ def Jugar():
                                          if AST.rect.top > 1200:
                                                  AST.lista_asteroide.remove(x)
                                          if x.rect.colliderect(Jugador.rect):
+                                                 Imagen_Disparo_Jugador = "proyectil_v2.png"
+                                                 Disparo_enemigo = 1600
+                                                 Velocidad = 5
+                                                 nivel = 1
+                                                 Asteroides = 500
+                                                 lista_invasores = []
+                                                 Resultados()
                                                  pygame.display.quit()
                                                  pygame.quit()
                                                  Game_Over()
+                                                 
                                         
                       
                     
@@ -648,9 +728,17 @@ def Jugar():
                         enemigo.Dibujar(juego)
 
                         if enemigo.rect.colliderect(Jugador.rect):
+                                Imagen_Disparo_Jugador = "proyectil_v2.png"
+                                Disparo_enemigo = 1600
+                                Velocidad = 5
+                                nivel = 1
+                                Asteroides = 500
+                                lista_invasores = []
+                                Resultados()
                                 pygame.display.quit()
                                 pygame.quit()
                                 Game_Over()
+                                
                         
                         
                         if len(enemigo.lista_disparo1) > 0:
@@ -658,13 +746,27 @@ def Jugar():
                                          x.Dibujar(juego)
                                          x.Trayecto()
                                          if x.rect.colliderect(Jugador.rect):
+                                                 Imagen_Disparo_Jugador = "proyectil_v2.png"
+                                                 Disparo_enemigo = 1600
+                                                 Velocidad = 5
+                                                 nivel = 1
+                                                 Asteroides = 500
+                                                 lista_invasores = []
+                                                 Resultados()
                                                  pygame.display.quit()
                                                  pygame.quit()
                                                  Game_Over()
                                                  
+                                                 
+                                                 
                                          if x.rect.top > 900:
                                                  enemigo.lista_disparo1.remove(x)
-
+                        #if len(enemigo.lista_exp) > 0:
+                                 #for x in enemigo.lista_exp:
+                                  #       print ("Hola")
+                                   #      x.Dibujar(juego)
+                                         
+                                         
                 #Se incrementa el nivel cuando la lista de invasores es igual a 0
                 
                                  
