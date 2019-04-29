@@ -667,11 +667,10 @@ def Jugar():
                         else:
                                 for enemigo in lista_invasores:
                                         if x.rect.colliderect(enemigo.rect):
-                                                #explosion = True
                                                 enemigo.explosion_enemigo()
                                                 lista_invasores.remove(enemigo)
                                                 Jugador.lista_disparo.remove(x)
-                                                marcador += 10
+                                                marcador += 1
                                                 Exp_son = pygame.mixer.Sound("muerte.wav")
                                                 Exp_son.play()
                                                 
@@ -681,7 +680,7 @@ def Jugar():
                                                 Aparicion.explosion_asteroide()
                                                 AST.lista_asteroide.remove(Aparicion)
                                                 Jugador.lista_disparo.remove(x)
-                                                marcador += 10
+                                                marcador += 1
                                                 Exp_son = pygame.mixer.Sound("muerte.wav")
                                                 Exp_son.play()
                                         
@@ -793,6 +792,12 @@ def Jugar():
                         Iniciar_nivel()
                         
                 else:
+                        Imagen_Disparo_Jugador = "proyectil_v2.png"
+                        Disparo_enemigo = 1600
+                        Velocidad = 5
+                        nivel = 1
+                        Asteroides = 500
+                        lista_invasores = []
                         Win()
                        
                                 
